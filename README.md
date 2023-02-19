@@ -232,22 +232,11 @@ Another way of building the images is shown below and relies on docker commands 
 ...
 [root@pt-instance-6:~/springblog]$ docker push <your user>/springfront:v2
 ...
-[root@pt-instance-6:~/springblog]$ docker run -it -d --name springfront -h springfront <your user>/springfront:vé
+[root@pt-instance-6:~/springblog]$ docker run -it -d --name springfront -h springfront <your user>/springfront:v2
 ````
+</br>
 
-
-
-Simply run this command:
-
-````shell
-[root@pt-instance-6:~/springblog]$ docker-compose up -d
-Creating network "app" with driver "bridge"
-Creating dd-agent-dogfood-jmx    ... done
-Creating springback              ... done
-Creating springfront             ... done
-````
-
-Let's checking the status of our containers:
+Let's check the status of our containers:
 
 ````shell
 [root@pt-instance-6:~/springblog]$ docker-compose ps
@@ -299,7 +288,7 @@ Then let's run the agent. As docker is installed on our environment, we will use
 
 But if you wish to have it deployed as a standalone service you will want to follow the instructions as per [Datadog Agent installation](https://app.datadoghq.com/account/settings?_gl=1*17qq65s*_gcl_aw*R0NMLjE2NzY0Mzg4NTcuQ2p3S0NBaUFfNnlmQmhCTkVpd0FrbVh5NTcxNlplWmxIQ3RBS0MwdWdUeWIyNnZSRGN1Q01YUHJoZHlYU2Zaekt4eTNNZjZST1I4SVVSb0NwT2NRQXZEX0J3RQ..*_ga*NzYyNTQxODI3LjE2MDExNDI4ODA.*_ga_KN80RDFSQK*MTY3NjgwOTY3NS4zMC4xLjE2NzY4MDk3MDQuMzEuMC4w#agent/ubuntu)
 
-By default, the Datadog Agent is enabled in your datadog.yaml file under apm_config with `enabled: true` and listens for trace data at `http://localhost:8126`
+By default, the Datadog Agent is enabled in your `datadog.yaml` file under `apm_config` with `enabled: true` and listens for trace data at `http://localhost:8126`
 
 
 
@@ -327,7 +316,7 @@ Status: Downloaded newer image for gcr.io/datadoghq/agent:latest-jmx
 
 In order to instrument our services, we will also need to use a java tracing library (`dd-java-agent.jar`) 
 
-To install the Java tracing client, download `dd-java-agent.jar`, which contains the Agent class files
+To install the java tracing client, download `dd-java-agent.jar`, which contains the Agent class files
 `wget -O dd-java-agent.jar 'https://dtdg.co/latest-java-tracer'`
 
 But you can skip this as the client is already available in this repo. Now let's build, instrument and run our services.
@@ -414,7 +403,7 @@ BUILD SUCCESSFUL in 7s
 2023-02-19 12:49:12 [main] INFO  c.d.pej.front.SpringFrontApplication -   - Initial call 
 ````
 
-The service is started and listens on port `8080`. And exposes an `/upstream` endpoint. We can quickly check that the communication takes place by issuing this curl command and hitting the `/upstream` exposed by `springfront`
+The service is started and listens on port `8080`. And exposes an `/upstream` endpoint. We can quickly check that the communication takes place by issuing this curl command to hit the `/upstream` endpoint exposed by `springfront`
 
 ````shell
 [root@pt-instance-6:~/springblog/springfront]$ curl localhost:8080/upstream
@@ -422,7 +411,7 @@ Quote{type='success', values=Values{id=6, quote='Alea jacta est'}}
 ````
 
 Everything is now in place. We can now start instrumenting those services.
-In order to do so we will need to add some options to the jvm when lauching the services. As there are two services, each set of options will have specific details related to them.
+In order to do so we will need to add some options to the jvm when lauching the services. As there are two services, each set of options will have specific details related to them (Essentially the service names that will be used in the Datadog APM UI)
 
 For `springfront` we will use the following:
 
@@ -487,7 +476,7 @@ Same for `springfront`
 ### Testing the application and generating load
 
 
-Now by running a few curl commands on `/upstream` we can check that our service gets instrumented and the details are reflected in this trace flamegraph. 
+Now by running a few curl commands on `/upstream`, and after a few seconds, we can check that our services are being instrumented and that the details are reflected in this trace flamegraph. 
 
 <p align="left">
   <img src="img/imgRest3.png" width="650" />
