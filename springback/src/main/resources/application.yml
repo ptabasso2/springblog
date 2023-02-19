@@ -1,0 +1,12 @@
+logging:
+  level:
+    root: info
+    org.springframework.web: INFO
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %X{dd.trace_id} %X{dd.span_id} - %msg%n"
+#    file: "%d{yyyy-MM-dd HH:mm:ss} %magenta([%thread]) %highlight(%-5level) %yellow(%logger{36}) - %X{dd.trace_id} %X{dd.span_id} - %msg%n"
+#    console: "%d{yyyy-MM-dd HH:mm:ss} %magenta([%thread]) %highlight(%-5level) %yellow(%logger{36}) - %X{dd.trace_id} %X{dd.span_id} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %X{dd.trace_id} %X{dd.span_id} - %msg%n"
+  file:
+    name: ${logging.file.path}/springback.log
+    path: logs

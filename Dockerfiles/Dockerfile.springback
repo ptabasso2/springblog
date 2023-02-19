@@ -1,0 +1,20 @@
+# docker build to be run from .. (context). Directory containing the "Dockerfiles" directory
+FROM adoptopenjdk/openjdk11:ubuntu-nightly-slim
+
+ENV PS1A="[\[\e[1m\]\[\e[38;5;46m\]\u\[\e[0m\]@\h:\[\e[1m\]\[\e[38;5;21m\]\w\[\e[0m\]]$ "
+ENV TZ="Europe/Paris"
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt update \
+ && apt -y install net-tools iputils-ping curl vim procps netcat wget gnupg2 apt-transport-https sudo lsof unzip git \
+ && echo "alias ll='ls -lrt'" >> /root/.bashrc && echo 'PS1=$PS1A' >> ~/.bashrc && echo 'HISTFILESIZE=20000' >> ~/.bashrc && echo 'HISTSIZE=10000' >> ~/.bashrc
+
+WORKDIR /app
+
+
+COPY springback/build/libs/spring-back.jar spring-back.jar
+
+
+EXPOSE 8088
+CMD java -jar spring-back.jar --server.port=8088
