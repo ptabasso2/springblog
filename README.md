@@ -28,18 +28,20 @@ The purpose of this lab is to help familiarizing and practising the various step
 ### Pre-requisites
 
 + About 90 minutes
-+ A java JDK (If building & running locally). ex OpenJDK 11 or above
-+ Gradle installed (If building & running locally). ex Gradle 7.5.1
++ A java JDK (If building & running locally). Ex OpenJDK 11 or above
++ Gradle installed (If building & running locally). Ex Gradle 7.5.1
 + Git client
 + A Datadog account with a valid API key
 + Your favorite text editor or IDE (Ex Sublime Text, Atom, vscode...)
-+ Docker and Docker compose (Optional)
++ Docker and docker-compose.
 
 
 ### Clone the repository
 
 <pre style="font-size: 12px">
-COMP10619:~ pejman.tabassomi$ git clone https://github.com/ptabasso2/springblog
+[root@pt-instance-6:~/]$ git clone https://github.com/ptabasso2/springblog
+[root@pt-instance-6:~/]$ cd springblog
+[root@pt-instance-6:~/springblog]$ 
 </pre>
 
 ### Directory structure of the project
@@ -47,7 +49,7 @@ COMP10619:~ pejman.tabassomi$ git clone https://github.com/ptabasso2/springblog
 The example below is the structure after having clone the project.
 
 ```shell
-COMP10619:springblog pejman.tabassomi$ tree
+[root@pt-instance-6:~/springblog]$ tree
 .
 ├── Dockerfiles
 │   ├── Dockerfile.springback
@@ -104,18 +106,19 @@ COMP10619:springblog pejman.tabassomi$ tree
 ```
 
 The main components of this project can be described as follows:
-+ Two distinct microservices (`springfront` and `springback`) communicating with each other through Rest. The backend service in turn do a bit of processing and issues two external http calls  </br>
-+ The various docker files needed to build the images and the docker-compose configuration to spin up the four containers (`dd-agent`, `springfront`, `springback`).
++ Two distinct microservices (`springfront` and `springback`) communicating with each other through Rest. The backend service in turn does a bit of processing and issues two external http calls  </br>
++ The various docker files needed to build the images and the `docker-compose` configuration file to spin up the three containers (`dd-agent`, `springfront`, `springback`).
 
 
 ### Building the docker images and run the application through docker (Optional).
 
+This step is not mandatory. If you wish to have these services running locally you may skip this section and jump to the next [one](#local).
+
 **Building the images**
 
-This step is not mandatory. If you wish to have these services running locally you may skip this section and jump to the next one.
 
 For the sake of effectiveness, you will find the required images preloaded into the following registry https://hub.docker.com/repositories/pejese </br>
-But if you ever need to change/adapt the Dockerfiles and rebuild the images you may consider the following steps:
+But if you ever need to change/adapt the Dockerfiles and rebuild and push the images yourself, you may consider the following steps:
 
 First change the `image` key in the `docker-compose.yml` file to specify your repository/registry details. And then run the build command as follows
 
@@ -200,12 +203,12 @@ Creating springfront          ... done
 Creating springback           ... done
 ````
 
-At this point the two images `springfront`, `springback` are built in the local repository (`pejese`) and the corresponding containers are up and running. You may want know to push those newly created images to your own remote image registry (ex: dockerhub or any other registry of your choice) by running `docker push`.
+At this point the two images `springfront`, `springback` are built in the local repository (`pejese`) and the corresponding containers are up and running. You may want now to push those newly created images to your own remote image registry (ex: dockerhub or any other registry of your choice) by running `docker push`.
 
 Make sure you are authenticated to your registry through the `docker login` command.
 
 ````shell
-[root@pt-instance-7:~/rest]$ docker login -u=<your user> -p=xxxxxxxxxxx
+[root@pt-instance-6:~/springblog]$ docker login -u=<your user> -p=xxxxxxxxxxx
 WARNING! Using --password via the CLI is insecure. Use --password-stdin.
 WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
 Configure a credential helper to remove this warning. See
@@ -217,48 +220,48 @@ Login Succeeded
 And then
 
 ````shell
-[root@pt-instance-7:~/rest]$ docker push <your user>/springfront:v0
+[root@pt-instance-6:~/springblog]$ docker push <your user>/springfront:v2
 ````
 
 Another way of building the images is shown below and relies on docker commands instead of the docker-compose ones:
 
 ````shell
-[root@pt-instance-7:~/rest]$ docker build -f Dockerfiles/Dockerfile.springfront -t <your user>/springfront:v0 .
+[root@pt-instance-6:~/springblog]$ docker build -f Dockerfiles/Dockerfile.springfront -t <your user>/springfront:v2 .
 ...
-[root@pt-instance-7:~/rest]$ docker login -u=<your user> -p=xxxxxxxxxxx
+[root@pt-instance-6:~/springblog]$ docker login -u=<your user> -p=xxxxxxxxxxx
 ...
-[root@pt-instance-7:~/rest]$ docker push <your user>/springfront:v0
+[root@pt-instance-6:~/springblog]$ docker push <your user>/springfront:v2
 ...
-[root@pt-instance-7:~/rest]$ docker run -it -d --name springfront -h springfront <your user>/springfront:v0
+[root@pt-instance-6:~/springblog]$ docker run -it -d --name springfront -h springfront <your user>/springfront:vé
 ````
 
 
-**Running <a name="runapp">the</a> application**
 
 Simply run this command:
 
 ````shell
-[root@pt-instance-7:~/rest]$ docker-compose up -d
+[root@pt-instance-6:~/springblog]$ docker-compose up -d
 Creating network "app" with driver "bridge"
 Creating dd-agent-dogfood-jmx    ... done
 Creating springback              ... done
 Creating springfront             ... done
 ````
 
-Checking status
+Let's checking the status of our containers:
 
 ````shell
-[root@pt-instance-7:~/rest]$ docker-compose ps
-         Name                        Command                  State                                                                Ports                                                          
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------                                                                                                
-dd-agent-dogfood-jmx-di   /bin/entrypoint.sh               Up (healthy)   0.0.0.0:8125->8125/tcp,:::8125->8125/tcp, 8125/udp, 0.0.0.0:8126->8126/tcp,:::8126->8126/tcp                            
-springback                /bin/sh -c java -jar sprin ...   Exit 1                                                                                                                                 
-springfront               /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8080->8080/tcp,:::8080->8080/tcp                
+[root@pt-instance-6:~/springblog]$ docker-compose ps
+        Name                      Command                  State                                                  Ports                                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+dd-agent-dogfood-jmx   /bin/entrypoint.sh               Up (healthy)   0.0.0.0:8125->8125/tcp,:::8125->8125/tcp, 8125/udp, 0.0.0.0:8126->8126/tcp,:::8126->8126/tcp
+springback             /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8088->8088/tcp,:::8088->8088/tcp                                                    
+springfront            /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8080->8080/tcp,:::8080->8080/tcp 
 ````
 
+And now testing them to see if the application is functional.
 
 ````shell
-[root@pt-instance-7:~/rest]$ curl localhost:8080/upstream
+[root@pt-instance-6:~/springblog]$ curl localhost:8080/upstream
 Quote{type='success', value=Value{id=9, quote='Alea jacta est'}}
 
 ````
@@ -268,11 +271,18 @@ Now as all the components are up and running, and every pieces work well togethe
 When you are done with those services, you can tear them down by running this command
 
 ````shell
-[root@pt-instance-7:~/rest]$ docker-compose down
-...
+[root@pt-instance-6:~/springblog]$ docker-compose down
+Stopping dd-agent-dogfood-jmx ... done
+Stopping springfront          ... done
+Stopping springback           ... done
+Removing dd-agent-dogfood-jmx ... done
+Removing springfront          ... done
+Removing springback           ... done
+Removing network app
+
 ````
 
-### Building the application and running it locally.
+### Building <a name="local"></a> the application and running it locally.
 
 These steps assume that you have a JDK installed and configured for your environment. This tutorial has been tested with `OpenJDK 11.0.12`.
 And you will also need to have gradle installed, the version used in this example is `7.5.1` 
@@ -320,7 +330,7 @@ In order to instrument our services, we will also need to use a java tracing lib
 To install the Java tracing client, download `dd-java-agent.jar`, which contains the Agent class files
 `wget -O dd-java-agent.jar 'https://dtdg.co/latest-java-tracer'`
 
-But you can skip this as we have alrady provided the client in this repo. Now let's build, instrument and run our services.
+But you can skip this as the client is already available in this repo. Now let's build, instrument and run our services.
 
 
 **Building and running `springback`**
@@ -412,7 +422,7 @@ Quote{type='success', values=Values{id=6, quote='Alea jacta est'}}
 ````
 
 Everything is now in place. We can now start instrumenting those services.
-In order to do so we will need to add some options to the jvm when lauching the services. As there are two services each set of options will have specific details related to them.
+In order to do so we will need to add some options to the jvm when lauching the services. As there are two services, each set of options will have specific details related to them.
 
 For `springfront` we will use the following:
 
@@ -438,7 +448,7 @@ Let's change the commands we used before to launch both services accordingly:
 [root@pt-instance-6:~/springblog/springback]$ cd ..
 [root@pt-instance-6:~/springblog]$ nohup java -javaagent:/root/springblog/dd-java-agent.jar -Ddd.service=springback -Ddd.env=dev -Ddd.version=12 -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256 -Ddd.trace.http.client.split-by-domain=true -Ddd.tags=env:dev -jar springback/build/libs/spring-back.jar --server.port=8088 &
 [1] 19870
-[root@pt-instance-6:~/springblog/springback]$ nohup: ignoring input and appending output to 'nohup.out'
+[root@pt-instance-6:~/springblog]$ nohup: ignoring input and appending output to 'nohup.out'
 ````
 
 We can check that the service is running by taking a look at content of the `nohup.out`
@@ -468,7 +478,7 @@ Same for `springfront`
 ````shell
 [root@pt-instance-6:~/springblog]$ nohup java -javaagent:/root/springblog/dd-java-agent.jar -Ddd.service=springfront -Ddd.env=dev -Ddd.version=12 -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256 -Ddd.trace.http.client.split-by-domain=true -Ddd.tags=env:dev -jar springfront/build/libs/spring-front.jar
 [1] 19789
-[root@pt-instance-6:~/springblog/springback]$ nohup: ignoring input and appending output to 'nohup.out'
+[root@pt-instance-6:~/springblog]$ nohup: ignoring input and appending output to 'nohup.out'
 ````
 
 
@@ -477,11 +487,13 @@ Same for `springfront`
 ### Testing the application and generating load
 
 
-Now by running a few curl commands on `/upstream` we can check that our service gets instrumented:
+Now by running a few curl commands on `/upstream` we can check that our service gets instrumented and the details are reflected in this trace flamegraph. 
 
 <p align="left">
   <img src="img/imgRest3.png" width="650" />
 </p>
+
+</br>
 
 Besides we can also visualize the topology representation of this call
 
