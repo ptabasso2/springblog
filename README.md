@@ -1,5 +1,8 @@
-## Rest application example
+![GitHub](https://img.shields.io/github/license/ptabasso2/springblog?style=plastic)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/ptabasso2/springblog)
+![GitHub last commit](https://img.shields.io/github/last-commit/ptabasso2/springblog)
 
+## Rest application example
 
 ### Introduction
 
@@ -120,16 +123,16 @@ This step is not mandatory. If you wish to have these services running locally y
 For the sake of effectiveness, you will find the required images preloaded into the following registry https://hub.docker.com/repositories/pejese </br>
 But if you ever need to change/adapt the Dockerfiles and rebuild and push the images yourself, you may consider the following steps:
 
-First change the `image` key in the `docker-compose.yml` file to specify your repository/registry details. And then run the build command as follows
+* First change the `image` key in the `docker-compose.yml` file to specify your repository/registry details. The example uses `pejese/springfront:v2` and `pejese/springback:v2` 
 
 
-Do make sure to set your API Key before running the following command:
+* Do make sure to set your API Key before running the following command:
 
 ````shell
 [root@pt-instance-6:~/springblog]$ export DD_API_KEY=<Your api key>
 ````
 
-Then run the following:
+* Then run the following:
 
 ````shell
 [root@pt-instance-6:~/springblog]$ docker-compose up -d
