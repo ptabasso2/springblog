@@ -110,7 +110,7 @@ The example below is the structure after having clone the project.
 
 The main components of this project can be described as follows:
 + Two distinct microservices (`springfront` and `springback`) communicating with each other through Rest. The backend service in turn does a bit of processing and issues two external http calls  </br>
-+ The various docker files needed to build the images and the `docker-compose` configuration file to spin up the three containers (`dd-agent`, `springfront`, `springback`).
++ The various docker files needed to build the images and the `docker-compose` configuration file to spin up the three containers (`dd-agent-dogfood-jmx`, `springfront`, `springback`).
 
 
 ### Building the docker images and run the application through docker (Optional).
