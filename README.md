@@ -4,8 +4,12 @@
 
 ## Rest application example
 
+<br/>
+
+
 ### Introduction
 
+---
 The sections of this tutorial are structured as follows
 
 * Goal
@@ -13,23 +17,30 @@ The sections of this tutorial are structured as follows
 * Clone the repository
 * Directory structure of the project
 * Overview of the application
-* Building the docker images (optional)
-* Run the application - before configuration phase
+* Building the docker images and run the application through docker (Optional).
+* Building the application and running it locally.
+* Testing the application and generating load
+* Building the application and running it on a kubernetes cluster
 * Conclusion
 
 In each section, we'll describe the required steps to take in order to reach the goal.
 
+<br/>
 
 ### Goal of this lab
 
+---
 The purpose of this lab is to help familiarizing and practising the various steps required to set up a simple spring application using Rest.
 
 <p align="left">
   <img src="img/imgRest.png" width="850" />
 </p>
 
+<br/>
+
 ### Pre-requisites
 
+---
 + About 90 minutes
 + A java JDK (If building & running locally). Ex OpenJDK 11 or above
 + Gradle installed (If building & running locally). Ex Gradle 7.5.1
@@ -38,17 +49,22 @@ The purpose of this lab is to help familiarizing and practising the various step
 + Your favorite text editor or IDE (Ex Sublime Text, Atom, vscode...)
 + Docker and docker-compose.
 
+<br/>
 
 ### Clone the repository
 
+---
 <pre style="font-size: 12px">
 [root@pt-instance-6:~/]$ git clone https://github.com/ptabasso2/springblog
 [root@pt-instance-6:~/]$ cd springblog
 [root@pt-instance-6:~/springblog]$ 
 </pre>
 
+<br/>
+
 ### Directory structure of the project
 
+---
 The example below is the structure after having clone the project.
 
 ```shell
@@ -108,14 +124,21 @@ The example below is the structure after having clone the project.
 
 ```
 
+### Overview of the application
+
+---
 The main components of this project can be described as follows:
 + Two distinct microservices (`springfront` and `springback`) communicating with each other through Rest. The backend service in turn does a bit of processing and issues two external http calls  </br>
 + The various docker files needed to build the images and the `docker-compose` configuration file to spin up the three containers (`dd-agent-dogfood-jmx`, `springfront`, `springback`).
 
+<br/>
 
 ### Building the docker images and run the application through docker (Optional).
 
+---
 This step is not mandatory. If you wish to have these services running locally you may skip this section and jump to the next [one](#local).
+
+<br/>
 
 **Building the images**
 
@@ -208,6 +231,8 @@ Creating springback           ... done
 
 At this point the two images `springfront`, `springback` are built in the local repository (`pejese`) and the corresponding containers are up and running. You may want now to push those newly created images to your own remote image registry (ex: dockerhub or any other registry of your choice) by running `docker push`.
 
+<br/>
+
 Make sure you are authenticated to your registry through the `docker login` command.
 
 ````shell
@@ -249,6 +274,7 @@ dd-agent-dogfood-jmx   /bin/entrypoint.sh               Up (healthy)   0.0.0.0:8
 springback             /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8088->8088/tcp,:::8088->8088/tcp                                                    
 springfront            /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8080->8080/tcp,:::8080->8080/tcp 
 ````
+<br/>
 
 And now testing them to see if the application is functional.
 
@@ -259,6 +285,7 @@ Quote{type='success', value=Value{id=9, quote='Alea jacta est'}}
 ````
 
 Now as all the components are up and running, and every pieces work well together
+<br/>
 
 When you are done with those services, you can tear them down by running this command
 
@@ -274,10 +301,15 @@ Removing network app
 
 ````
 
+<br/>
+
 ### Building <a name="local"></a> the application and running it locally.
 
+---
 These steps assume that you have a JDK installed and configured for your environment. This tutorial has been tested with `OpenJDK 11.0.12`.
 And you will also need to have gradle installed, the version used in this example is `7.5.1` 
+
+<br/>
 
 **Starting the Datadog Agent first**
 
@@ -287,9 +319,11 @@ First set your API Key:
 [root@pt-instance-6:~/springblog]$ export DD_API_KEY=<Your api key>
 ````
 
-Then let's run the agent. As docker is installed on our environment, we will use a dockerized version of the agent. 
-
+Then let's run the agent. As docker is installed on our environment, we will use a dockerized version of the agent. <br/>
 But if you wish to have it deployed as a standalone service you will want to follow the instructions as per [Datadog Agent installation](https://app.datadoghq.com/account/settings?_gl=1*17qq65s*_gcl_aw*R0NMLjE2NzY0Mzg4NTcuQ2p3S0NBaUFfNnlmQmhCTkVpd0FrbVh5NTcxNlplWmxIQ3RBS0MwdWdUeWIyNnZSRGN1Q01YUHJoZHlYU2Zaekt4eTNNZjZST1I4SVVSb0NwT2NRQXZEX0J3RQ..*_ga*NzYyNTQxODI3LjE2MDExNDI4ODA.*_ga_KN80RDFSQK*MTY3NjgwOTY3NS4zMC4xLjE2NzY4MDk3MDQuMzEuMC4w#agent/ubuntu)
+
+
+<br/>
 
 By default, the Datadog Agent is enabled in your `datadog.yaml` file under `apm_config` with `enabled: true` and listens for trace data at `http://localhost:8126`
 
@@ -317,13 +351,13 @@ Status: Downloaded newer image for gcr.io/datadoghq/agent:latest-jmx
 2d1eec89c2196d298d1e3edf1e9f879c0fc3be593d96f1469cfacc2cacfc18b4
 ````
 
-In order to instrument our services, we will also need to use a java tracing library (`dd-java-agent.jar`) 
-
+In order to instrument our services, we will also need to use a java tracing library (`dd-java-agent.jar`). <br/> 
 To install the java tracing client, download `dd-java-agent.jar`, which contains the Agent class files
-`wget -O dd-java-agent.jar 'https://dtdg.co/latest-java-tracer'`
-
+`wget -O dd-java-agent.jar 'https://dtdg.co/latest-java-tracer'`<br/>
 But you can skip this as the client is already available in this repo. Now let's build, instrument and run our services.
 
+
+<br/>
 
 **Building and running `springback`**
 
@@ -365,6 +399,8 @@ We can check that the service is running by taking a look at content of the `noh
 
 The service is started and listens on port `8088` and exposes an endpoint `/downstream` that will be hit by the `springfront` service. 
 Let's now build and test `springfront`
+
+<br/>
 
 **Building and running `springfront`**
 
@@ -465,7 +501,7 @@ You can see that before the spring banner gets displayed, some entries tied to t
 ````
 
 
-Same for `springfront`
+`springfront`
 
 ````shell
 [root@pt-instance-6:~/springblog]$ nohup java -javaagent:/root/springblog/dd-java-agent.jar -Ddd.service=springfront -Ddd.env=dev -Ddd.version=12 -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256 -Ddd.trace.http.client.split-by-domain=true -Ddd.tags=env:dev -jar springfront/build/libs/spring-front.jar
@@ -473,11 +509,11 @@ Same for `springfront`
 [root@pt-instance-6:~/springblog]$ nohup: ignoring input and appending output to 'nohup.out'
 ````
 
-
-
+<br/>
 
 ### Testing the application and generating load
 
+---
 
 Now by running a few curl commands on `/upstream`, and after a few seconds, we can check that our services are being instrumented and that the details are reflected in this trace flamegraph. 
 
@@ -493,7 +529,170 @@ Besides we can also visualize the topology representation of this call
   <img src="img/imgRest4.png" width="650" />
 </p>
 
+<br/>
+
+### Building <a name="k8s"></a> the application and running it on a kubernetes cluster
+
+---
+<br/>
+
+**Building the cluster**
+
+Let's first build a cluster. In this tutorial we are going to create a 3 node cluster on a google cloud (GKE). You may of course consider any other cloud provider to do so
+
+The first steps consists of creating the cluste using the command line utility `gcloud` and pass the necessary information pertaining to the type, region, sizing, disk, network...required to spin up our cluster. We are going to set a tag for this cluster `pej-cluster-1-nw-tag` that will be used during the firewall configuration to match the rule and the services tied to this cluster.
+
+<br/>
+
+Our cluster name is `pej-cluster-1`
+
+````shell
+[root@pt-instance-6:~/springblog]$ gcloud beta container --project "datadog-project" clusters create "pej-cluster-1" --zone "us-central1-c" --no-enable-basic-auth --cluster-version "1.24.9-gke.2000" --release-channel "regular" --machine-type "e2-medium" --image-type "COS_CONTAINERD" --disk-type "pd-balanced" --disk-size "100" --metadata disable-legacy-endpoints=true --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --max-pods-per-node "110" --num-nodes "3" --logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --network "projects/datadog-project/global/networks/pej-network" --subnetwork "projects/datadog-project/regions/us-central1/subnetworks/pej-network" --no-enable-intra-node-visibility --default-max-pods-per-node "110" --no-enable-master-authorized-networks --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver --enable-autoupgrade --enable-autorepair --max-surge-upgrade 1 --max-unavailable-upgrade 0 --enable-shielded-nodes --tags "pej-cluster-1-nw-tag" --node-locations "us-central1-c"
+
+Default change: During creation of nodepools or autoscaling configuration changes for cluster versions greater than 1.24.1-gke.800 a default location policy is applied. For Spot and PVM it defaults to ANY, and for all other VM kinds a BALANCED policy is used. To change the default values use the `--location-policy` flag.
+Note: The Pod address range limits the maximum size of the cluster. Please refer to https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr to learn how to optimize IP address allocation.
+Creating cluster pej-cluster-1 in us-central1-c... Cluster is being health-checked (master is healthy)...done.                                                                                       
+Created [https://container.googleapis.com/v1beta1/projects/datadog-project/zones/us-central1-c/clusters/pej-cluster-1].
+To inspect the contents of your cluster, go to: https://console.cloud.google.com/kubernetes/workload_/gcloud/us-central1-c/pej-cluster-1?project=datadog-project
+kubeconfig entry generated for pej-cluster-1.
+NAME           LOCATION       MASTER_VERSION   MASTER_IP      MACHINE_TYPE  NODE_VERSION     NUM_NODES  STATUS
+pej-cluster-1  us-central1-c  1.24.9-gke.2000  34.28.253.115  e2-medium     1.24.9-gke.2000  3          RUNNING
 
 
+Updates are available for some Google Cloud CLI components.  To install them,
+please run:
+  $ gcloud components update
+````
+
+<br/>
+
+**Configuring the firewall rule**
+
+Now that the cluster is created let's configure the firewall rules by running the following gcloud command. This rule will allow the source range of IP addresses to use specific protocols and ports to access the applications and services running on the cluster. 
+
+
+````shell
+[root@pt-instance-6:~/springblog]$ gcloud compute --project=datadog-project firewall-rules create pej-cluster-1-fw --direction=INGRESS --priority=1000 --network=pej-network --action=ALLOW --rules=tcp:22,tcp:80,tcp:8080,tcp:8088 --source-ranges=109.24.121.20/32 --target-tags=pej-cluster-1-nw-tag
+Creating firewall...⠹Created [https://www.googleapis.com/compute/v1/projects/datadog-project/global/firewalls/pej-cluster-1-fw].                                                                     
+Creating firewall...done.                                                                                                                                                                            
+NAME              NETWORK      DIRECTION  PRIORITY  ALLOW                                     DENY  DISABLED
+pej-cluster-1-fw  pej-network  INGRESS    1000      tcp:22,tcp:80,tcp:8080,tcp:8088,tcp:9088        False
+````
+<br/>
+
+**Deploying the Datadog Agent**
+
+
+Now that the cluster is up and running and the firewall rule configured, the Datadog Agent deployed through the helm chart, we are ready to deploy our pods and k8s services that will be used to access the application endpoint.
+
+The deployment manifest (`deployment.yaml`) is provided and can be used as is. It contains the details to create two pods (one for `springfront` and a second for `springback`) and two services (one for accessing `springfront` from the internet and that is of LoadBalancer type and second that will allow `springfront` to communicate with `springback` directly inside the cluster)
+
+
+````shell
+[root@pt-instance-6:~/springblog]$ kubectl apply -f k8s/deployment.yaml 
+deployment.apps/springfront created
+deployment.apps/springback created
+service/springfront created
+service/springback created
+````
+<br/>
+
+**Component state**
+
+Our pods and services have been created successfully and we can now check their respective state. We can also check the log content from one of the pod. 
+
+State of the pods: 
+
+````shell
+[root@pt-instance-6:~/springblog]$ kubectl get pods
+NAME                           READY   STATUS    RESTARTS   AGE
+springback-754bf5764b-gfn7s    1/1     Running   0          36s
+springfront-75ffb9cc79-drcht   1/1     Running   0          36s
+````
+
+<br/>
+
+Logs of one of the pods (`springback`):
+
+````shell
+[root@pt-instance-6:~/springblog]$ kubectl logs springback-754bf5764b-gfn7s
+Picked up JAVA_TOOL_OPTIONS: -javaagent:/app/javaagent/dd-java-agent.jar  -Ddd.env=dev -Ddd.service=springback  -Ddd.version=12 -Ddd.tags=env:dev -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true  -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256  -Ddd.trace.http.client.split-by-domain=true
+
+[dd.trace 2023-02-20 00:31:39:399 +0100] [main] INFO com.datadog.appsec.AppSecSystem - AppSec is ENABLED_INACTIVE with powerwaf(libddwaf: 1.6.2) no rules loaded
+[dd.trace 2023-02-20 00:31:39:578 +0100] [dd-task-scheduler] INFO datadog.trace.agent.core.StatusLogger - DATADOG TRACER CONFIGURATION {"version":"1.8.3~d70013d2e6","os_name":"Linux","os_version":"5.10.147+","architecture":"amd64","lang":"jvm","lang_version":"11.0.17-beta","jvm_vendor":"Eclipse Adoptium","jvm_version":"11.0.17-beta+7-202210061739","java_class_version":"55.0","http_nonProxyHosts":"null","http_proxyHost":"null","enabled":true,"service":"springback","agent_url":"http://10.128.15.237:8126","agent_error":true,"debug":false,"analytics_enabled":false,"sample_rate":1.0,"sampling_rules":[{},{}],"priority_sampling_enabled":true,"logs_correlation_enabled":true,"profiling_enabled":true,"remote_config_enabled":true,"debugger_enabled":false,"appsec_enabled":"ENABLED_INACTIVE","telemetry_enabled":true,"dd_version":"12","health_checks_enabled":true,"configuration_file":"no config file present","runtime_id":"902ce94d-8cc5-44c9-b9fe-3aec4f8c37f7","logging_settings":{"levelInBrackets":false,"dateTimeFormat":"'[dd.trace 'yyyy-MM-dd HH:mm:ss:SSS Z']'","logFile":"System.err","configurationFile":"simplelogger.properties","showShortLogName":false,"showDateTime":true,"showLogName":true,"showThreadName":true,"defaultLogLevel":"INFO","warnLevelString":"WARN","embedException":false},"cws_enabled":false,"cws_tls_refresh":5000,"datadog_profiler_enabled":false,"datadog_profiler_safe":false}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v2.6.1)
+
+2023-02-20 00:31:45 [main] INFO  c.d.pej.back.SpringBackApplication -   - Starting SpringBackApplication using Java 11.0.17-beta on springback-754bf5764b-gfn7s with PID 7 (/app/spring-back.jar started by root in /app)
+2023-02-20 00:31:45 [main] INFO  c.d.pej.back.SpringBackApplication -   - No active profile set, falling back to default profiles: default
+2023-02-20 00:31:51 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer -   - Tomcat initialized with port(s): 8088 (http)
+2023-02-20 00:31:51 [main] INFO  o.a.catalina.core.StandardService -   - Starting service [Tomcat]
+2023-02-20 00:31:51 [main] INFO  o.a.catalina.core.StandardEngine -   - Starting Servlet engine: [Apache Tomcat/9.0.55]
+2023-02-20 00:31:52 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] -   - Initializing Spring embedded WebApplicationContext
+2023-02-20 00:31:52 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext -   - Root WebApplicationContext: initialization completed in 6034 ms
+2023-02-20 00:31:54 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer -   - Tomcat started on port(s): 8088 (http) with context path ''
+2023-02-20 00:31:54 [main] INFO  c.d.pej.back.SpringBackApplication -   - Started SpringBackApplication in 12.155 seconds (JVM running for 18.265)
+2023-02-20 00:31:54 [main] INFO  c.d.pej.back.SpringBackApplication -   - test
+````
+
+The output above shows that the service has started and that the Datadog java tracing library has started to instrument the service. 
+
+<br/>
+
+State of the k8s services (`LoadBalancer` and `ClusterIP`)
+
+````shell
+[root@pt-instance-6:~/springblog]$ kubectl get svc
+NAME          TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)          AGE
+kubernetes    ClusterIP      10.20.0.1      <none>          443/TCP          11m
+springback    ClusterIP      10.20.7.220    <none>          8088/TCP         81s
+springfront   LoadBalancer   10.20.11.109   34.133.204.98   8080:32753/TCP   81s
+````
+<br/>
+
+**Testing the application**
+
+We can now curl the enpoint by using the external IP of the cluster (34.133.204.98) on port 8080 which is the listening port for `springfront`. 
+
+````shell
+[root@pt-instance-6:~/springblog]$ curl 34.133.204.98:8080/upstream
+Quote{type='success', values=Values{id=5, quote='Alea jacta est'}}
+````
+
+<br/>
+
+**Deleting the cluster**
+
+````shell
+[root@pt-instance-6:~/springblog]$ gcloud container clusters delete pej-cluster-1 --zone "us-central1-c"
+The following clusters will be deleted.
+ - [pej-cluster-1] in [us-central1-c]
+
+Do you want to continue (Y/n)?  y
+
+Deleting cluster pej-cluster-1...done.                                                                                                                                                               
+Deleted [https://container.googleapis.com/v1/projects/datadog-project/zones/us-central1-c/clusters/pej-cluster-1].
+````
+<br/>
+
+**Deleting the firewall rule**
+
+````shell
+[root@pt-instance-6:~/springblog]$ gcloud compute firewall-rules delete pej-cluster-1-fw
+The following firewalls will be deleted:
+ - [pej-cluster-1-fw]
+
+Do you want to continue (Y/n)?  Y
+
+Deleted [https://www.googleapis.com/compute/v1/projects/datadog-project/global/firewalls/pej-cluster-1-fw].
+````
+
+<br/>
 
 ### End
