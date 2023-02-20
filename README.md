@@ -2,14 +2,14 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/ptabasso2/springblog)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ptabasso2/springblog)
 
-## Rest application example
+# Rest application example
 
 <br/>
 
 
-### Introduction
+## Introduction
 
----
+
 The sections of this tutorial are structured as follows
 
 * Goal
@@ -27,9 +27,9 @@ In each section, we'll describe the required steps to take in order to reach the
 
 <br/>
 
-### Goal of this lab
+## Goal of this lab
 
----
+
 The purpose of this lab is to help familiarizing and practising the various steps required to set up a simple spring application using Rest.
 
 <p align="left">
@@ -38,9 +38,9 @@ The purpose of this lab is to help familiarizing and practising the various step
 
 <br/>
 
-### Pre-requisites
+## Pre-requisites
 
----
+
 + About 90 minutes
 + A java JDK (If building & running locally). Ex OpenJDK 11 or above
 + Gradle installed (If building & running locally). Ex Gradle 7.5.1
@@ -51,9 +51,9 @@ The purpose of this lab is to help familiarizing and practising the various step
 
 <br/>
 
-### Clone the repository
+## Clone the repository
 
----
+
 <pre style="font-size: 12px">
 [root@pt-instance-6:~/]$ git clone https://github.com/ptabasso2/springblog
 [root@pt-instance-6:~/]$ cd springblog
@@ -62,9 +62,9 @@ The purpose of this lab is to help familiarizing and practising the various step
 
 <br/>
 
-### Directory structure of the project
+## Directory structure of the project
 
----
+
 The example below is the structure after having clone the project.
 
 ```shell
@@ -124,24 +124,25 @@ The example below is the structure after having clone the project.
 
 ```
 
-### Overview of the application
+## Overview of the application
 
----
+
 The main components of this project can be described as follows:
 + Two distinct microservices (`springfront` and `springback`) communicating with each other through Rest. The backend service in turn does a bit of processing and issues two external http calls  </br>
 + The various docker files needed to build the images and the `docker-compose` configuration file to spin up the three containers (`dd-agent-dogfood-jmx`, `springfront`, `springback`).
 
 <br/>
 
-### Building the docker images and run the application through docker (Optional).
+## Building the docker images and run the application through docker (Optional).
 
----
+
 This step is not mandatory. If you wish to have these services running locally you may skip this section and jump to the next [one](#local).
 
 <br/>
 
 **Building the images**
 
+### Building the images ###
 
 For the sake of effectiveness, you will find the required images preloaded into the following registry https://hub.docker.com/repositories/pejese </br>
 But if you ever need to change/adapt the Dockerfiles and rebuild and push the images yourself, you may consider the following steps:
@@ -303,9 +304,9 @@ Removing network app
 
 <br/>
 
-### Building <a name="local"></a> the application and running it locally.
+## Building <a name="local"></a> the application and running it locally.
 
----
+
 These steps assume that you have a JDK installed and configured for your environment. This tutorial has been tested with `OpenJDK 11.0.12`.
 And you will also need to have gradle installed, the version used in this example is `7.5.1` 
 
@@ -511,9 +512,9 @@ You can see that before the spring banner gets displayed, some entries tied to t
 
 <br/>
 
-### Testing the application and generating load
+## Testing the application and generating load
 
----
+
 
 Now by running a few curl commands on `/upstream`, and after a few seconds, we can check that our services are being instrumented and that the details are reflected in this trace flamegraph. 
 
@@ -531,9 +532,9 @@ Besides we can also visualize the topology representation of this call
 
 <br/>
 
-### Building <a name="k8s"></a> the application and running it on a kubernetes cluster
+## Building <a name="k8s"></a> the application and running it on a kubernetes cluster
 
----
+
 <br/>
 
 **Building the cluster**
