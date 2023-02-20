@@ -140,7 +140,6 @@ This step is not mandatory. If you wish to have these services running locally y
 
 <br/>
 
-**Building the images**
 
 ### Building the images ###
 
@@ -312,7 +311,7 @@ And you will also need to have gradle installed, the version used in this exampl
 
 <br/>
 
-**Starting the Datadog Agent first**
+### Starting the Datadog Agent first ###
 
 First set your API Key:
 
@@ -360,7 +359,7 @@ But you can skip this as the client is already available in this repo. Now let's
 
 <br/>
 
-**Building and running `springback`**
+### Building and running `springback` ###
 
 ````shell
 [root@pt-instance-6:~/springblog]$ cd springback
@@ -403,7 +402,7 @@ Let's now build and test `springfront`
 
 <br/>
 
-**Building and running `springfront`**
+### Building and running `springfront` ###
 
 ````shell
 [root@pt-instance-6:~/springblog/springback]$ cd ../springfront
@@ -537,7 +536,7 @@ Besides we can also visualize the topology representation of this call
 
 <br/>
 
-**Building the cluster**
+### Building the cluster ###
 
 Let's first build a cluster. In this tutorial we are going to create a 3 node cluster on a google cloud (GKE). You may of course consider any other cloud provider to do so
 
@@ -567,7 +566,7 @@ please run:
 
 <br/>
 
-**Configuring the firewall rule**
+### Configuring the firewall rule ###
 
 Now that the cluster is created let's configure the firewall rules by running the following gcloud command. This rule will allow the source range of IP addresses to use specific protocols and ports to access the applications and services running on the cluster. 
 
@@ -581,7 +580,7 @@ pej-cluster-1-fw  pej-network  INGRESS    1000      tcp:22,tcp:80,tcp:8080,tcp:8
 ````
 <br/>
 
-**Deploying the Datadog Agent**
+### Deploying the Datadog Agent ###
 
 
 Now that the cluster is up and running and the firewall rule configured, the Datadog Agent deployed through the helm chart, we are ready to deploy our pods and k8s services that will be used to access the application endpoint.
@@ -598,7 +597,7 @@ service/springback created
 ````
 <br/>
 
-**Component state**
+### Component state ###
 
 Our pods and services have been created successfully and we can now check their respective state. We can also check the log content from one of the pod. 
 
@@ -657,7 +656,7 @@ springfront   LoadBalancer   10.20.11.109   34.133.204.98   8080:32753/TCP   81s
 ````
 <br/>
 
-**Testing the application**
+### Testing the application ###
 
 We can now curl the enpoint by using the external IP of the cluster (34.133.204.98) on port 8080 which is the listening port for `springfront`. 
 
@@ -668,7 +667,7 @@ Quote{type='success', values=Values{id=5, quote='Alea jacta est'}}
 
 <br/>
 
-**Deleting the cluster**
+### Deleting the cluster ###
 
 ````shell
 [root@pt-instance-6:~/springblog]$ gcloud container clusters delete pej-cluster-1 --zone "us-central1-c"
@@ -682,7 +681,7 @@ Deleted [https://container.googleapis.com/v1/projects/datadog-project/zones/us-c
 ````
 <br/>
 
-**Deleting the firewall rule**
+### Deleting the firewall rule ###
 
 ````shell
 [root@pt-instance-6:~/springblog]$ gcloud compute firewall-rules delete pej-cluster-1-fw
@@ -696,4 +695,4 @@ Deleted [https://www.googleapis.com/compute/v1/projects/datadog-project/global/f
 
 <br/>
 
-### End
+## End
