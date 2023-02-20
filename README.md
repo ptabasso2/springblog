@@ -4,8 +4,6 @@
 
 # Rest application example
 
-<br/>
-
 
 ## Introduction
 
@@ -25,7 +23,6 @@ The sections of this tutorial are structured as follows
 
 In each section, we'll describe the required steps to take in order to reach the goal.
 
-<br/>
 
 ## Goal of this lab
 
@@ -36,7 +33,6 @@ The purpose of this lab is to help familiarizing and practising the various step
   <img src="img/imgRest.png" width="850" />
 </p>
 
-<br/>
 
 ## Pre-requisites
 
@@ -49,7 +45,6 @@ The purpose of this lab is to help familiarizing and practising the various step
 + Your favorite text editor or IDE (Ex Sublime Text, Atom, vscode...)
 + Docker and docker-compose.
 
-<br/>
 
 ## Clone the repository
 
@@ -60,7 +55,6 @@ The purpose of this lab is to help familiarizing and practising the various step
 [root@pt-instance-6:~/springblog]$ 
 </pre>
 
-<br/>
 
 ## Directory structure of the project
 
@@ -131,14 +125,11 @@ The main components of this project can be described as follows:
 + Two distinct microservices (`springfront` and `springback`) communicating with each other through Rest. The backend service in turn does a bit of processing and issues two external http calls  </br>
 + The various docker files needed to build the images and the `docker-compose` configuration file to spin up the three containers (`dd-agent-dogfood-jmx`, `springfront`, `springback`).
 
-<br/>
 
 ## Building the docker images and run the application through docker (Optional).
 
 
 This step is not mandatory. If you wish to have these services running locally you may skip this section and jump to the next [one](#local).
-
-<br/>
 
 
 ### Building the images ###
@@ -231,7 +222,7 @@ Creating springback           ... done
 
 At this point the two images `springfront`, `springback` are built in the local repository (`pejese`) and the corresponding containers are up and running. You may want now to push those newly created images to your own remote image registry (ex: dockerhub or any other registry of your choice) by running `docker push`.
 
-<br/>
+
 
 Make sure you are authenticated to your registry through the `docker login` command.
 
@@ -274,7 +265,8 @@ dd-agent-dogfood-jmx   /bin/entrypoint.sh               Up (healthy)   0.0.0.0:8
 springback             /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8088->8088/tcp,:::8088->8088/tcp                                                    
 springfront            /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8080->8080/tcp,:::8080->8080/tcp 
 ````
-<br/>
+
+
 
 And now testing them to see if the application is functional.
 
@@ -285,7 +277,8 @@ Quote{type='success', value=Value{id=9, quote='Alea jacta est'}}
 ````
 
 Now as all the components are up and running, and every pieces work well together
-<br/>
+
+
 
 When you are done with those services, you can tear them down by running this command
 
@@ -301,7 +294,6 @@ Removing network app
 
 ````
 
-<br/>
 
 ## Building <a name="local"></a> the application and running it locally.
 
@@ -309,7 +301,6 @@ Removing network app
 These steps assume that you have a JDK installed and configured for your environment. This tutorial has been tested with `OpenJDK 11.0.12`.
 And you will also need to have gradle installed, the version used in this example is `7.5.1` 
 
-<br/>
 
 ### Starting the Datadog Agent first ###
 
@@ -319,14 +310,13 @@ First set your API Key:
 [root@pt-instance-6:~/springblog]$ export DD_API_KEY=<Your api key>
 ````
 
-Then let's run the agent. As docker is installed on our environment, we will use a dockerized version of the agent. <br/>
+Then let's run the agent. As docker is installed on our environment, we will use a dockerized version of the agent. 
+
 But if you wish to have it deployed as a standalone service you will want to follow the instructions as per [Datadog Agent installation](https://app.datadoghq.com/account/settings?_gl=1*17qq65s*_gcl_aw*R0NMLjE2NzY0Mzg4NTcuQ2p3S0NBaUFfNnlmQmhCTkVpd0FrbVh5NTcxNlplWmxIQ3RBS0MwdWdUeWIyNnZSRGN1Q01YUHJoZHlYU2Zaekt4eTNNZjZST1I4SVVSb0NwT2NRQXZEX0J3RQ..*_ga*NzYyNTQxODI3LjE2MDExNDI4ODA.*_ga_KN80RDFSQK*MTY3NjgwOTY3NS4zMC4xLjE2NzY4MDk3MDQuMzEuMC4w#agent/ubuntu)
 
 
-<br/>
 
 By default, the Datadog Agent is enabled in your `datadog.yaml` file under `apm_config` with `enabled: true` and listens for trace data at `http://localhost:8126`
-
 
 
 ````shell
@@ -351,15 +341,15 @@ Status: Downloaded newer image for gcr.io/datadoghq/agent:latest-jmx
 2d1eec89c2196d298d1e3edf1e9f879c0fc3be593d96f1469cfacc2cacfc18b4
 ````
 
-In order to instrument our services, we will also need to use a java tracing library (`dd-java-agent.jar`). <br/> 
+In order to instrument our services, we will also need to use a java tracing library (`dd-java-agent.jar`). 
+ 
 To install the java tracing client, download `dd-java-agent.jar`, which contains the Agent class files
-`wget -O dd-java-agent.jar 'https://dtdg.co/latest-java-tracer'`<br/>
+`wget -O dd-java-agent.jar 'https://dtdg.co/latest-java-tracer'`
+
 But you can skip this as the client is already available in this repo. Now let's build, instrument and run our services.
 
 
-<br/>
-
-### Building and running `springback` ###
+### Building and running **springback** ###
 
 ````shell
 [root@pt-instance-6:~/springblog]$ cd springback
@@ -400,9 +390,8 @@ We can check that the service is running by taking a look at content of the `noh
 The service is started and listens on port `8088` and exposes an endpoint `/downstream` that will be hit by the `springfront` service. 
 Let's now build and test `springfront`
 
-<br/>
 
-### Building and running `springfront` ###
+### Building and running **springfront** ###
 
 ````shell
 [root@pt-instance-6:~/springblog/springback]$ cd ../springfront
@@ -509,10 +498,8 @@ You can see that before the spring banner gets displayed, some entries tied to t
 [root@pt-instance-6:~/springblog]$ nohup: ignoring input and appending output to 'nohup.out'
 ````
 
-<br/>
 
 ## Testing the application and generating load
-
 
 
 Now by running a few curl commands on `/upstream`, and after a few seconds, we can check that our services are being instrumented and that the details are reflected in this trace flamegraph. 
@@ -529,12 +516,9 @@ Besides we can also visualize the topology representation of this call
   <img src="img/imgRest4.png" width="650" />
 </p>
 
-<br/>
 
 ## Building <a name="k8s"></a> the application and running it on a kubernetes cluster
 
-
-<br/>
 
 ### Building the cluster ###
 
@@ -542,7 +526,6 @@ Let's first build a cluster. In this tutorial we are going to create a 3 node cl
 
 The first steps consists of creating the cluste using the command line utility `gcloud` and pass the necessary information pertaining to the type, region, sizing, disk, network...required to spin up our cluster. We are going to set a tag for this cluster `pej-cluster-1-nw-tag` that will be used during the firewall configuration to match the rule and the services tied to this cluster.
 
-<br/>
 
 Our cluster name is `pej-cluster-1`
 
@@ -564,7 +547,6 @@ please run:
   $ gcloud components update
 ````
 
-<br/>
 
 ### Configuring the firewall rule ###
 
@@ -578,7 +560,7 @@ Creating firewall...done.
 NAME              NETWORK      DIRECTION  PRIORITY  ALLOW                                     DENY  DISABLED
 pej-cluster-1-fw  pej-network  INGRESS    1000      tcp:22,tcp:80,tcp:8080,tcp:8088,tcp:9088        False
 ````
-<br/>
+
 
 ### Deploying the Datadog Agent ###
 
@@ -595,7 +577,7 @@ deployment.apps/springback created
 service/springfront created
 service/springback created
 ````
-<br/>
+
 
 ### Component state ###
 
@@ -610,7 +592,6 @@ springback-754bf5764b-gfn7s    1/1     Running   0          36s
 springfront-75ffb9cc79-drcht   1/1     Running   0          36s
 ````
 
-<br/>
 
 Logs of one of the pods (`springback`):
 
@@ -643,7 +624,6 @@ Picked up JAVA_TOOL_OPTIONS: -javaagent:/app/javaagent/dd-java-agent.jar  -Ddd.e
 
 The output above shows that the service has started and that the Datadog java tracing library has started to instrument the service. 
 
-<br/>
 
 State of the k8s services (`LoadBalancer` and `ClusterIP`)
 
@@ -654,7 +634,6 @@ kubernetes    ClusterIP      10.20.0.1      <none>          443/TCP          11m
 springback    ClusterIP      10.20.7.220    <none>          8088/TCP         81s
 springfront   LoadBalancer   10.20.11.109   34.133.204.98   8080:32753/TCP   81s
 ````
-<br/>
 
 ### Testing the application ###
 
@@ -665,7 +644,6 @@ We can now curl the enpoint by using the external IP of the cluster (34.133.204.
 Quote{type='success', values=Values{id=5, quote='Alea jacta est'}}
 ````
 
-<br/>
 
 ### Deleting the cluster ###
 
@@ -679,7 +657,6 @@ Do you want to continue (Y/n)?  y
 Deleting cluster pej-cluster-1...done.                                                                                                                                                               
 Deleted [https://container.googleapis.com/v1/projects/datadog-project/zones/us-central1-c/clusters/pej-cluster-1].
 ````
-<br/>
 
 ### Deleting the firewall rule ###
 
@@ -692,7 +669,5 @@ Do you want to continue (Y/n)?  Y
 
 Deleted [https://www.googleapis.com/compute/v1/projects/datadog-project/global/firewalls/pej-cluster-1-fw].
 ````
-
-<br/>
 
 ## End
