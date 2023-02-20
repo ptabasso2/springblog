@@ -15,10 +15,10 @@ The sections of this tutorial are structured as follows
 * Clone the repository
 * Directory structure of the project
 * Overview of the application
-* Building the docker images and run the application through docker (Optional).
-* Building the application and running it locally.
+* Building the docker images and run the application through [docker](#docker) (Optional).
+* Building the application and running it [locally](#local).
 * Testing the application and generating load
-* Building the application and running it on a kubernetes cluster
+* Building the application and running it on a [kubernetes](#k8s) cluster
 * Conclusion
 
 In each section, we'll describe the required steps to take in order to reach the goal.
@@ -126,7 +126,7 @@ The main components of this project can be described as follows:
 + The various docker files needed to build the images and the `docker-compose` configuration file to spin up the three containers (`dd-agent-dogfood-jmx`, `springfront`, `springback`).
 
 
-## Building the docker images and run the application through docker (Optional).
+## Building the docker <a name="docker"></a> images and run the application through docker (Optional).
 
 
 This step is not mandatory. If you wish to have these services running locally you may skip this section and jump to the next [one](#local).
