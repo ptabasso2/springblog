@@ -583,7 +583,7 @@ service/springback created
 
 Our pods and services have been created successfully and we can now check their respective state. We can also check the log content from one of the pod. 
 
-State of the pods: 
+**State of the pods:**
 
 ````shell
 [root@pt-instance-6:~/springblog]$ kubectl get pods
@@ -593,7 +593,7 @@ springfront-75ffb9cc79-drcht   1/1     Running   0          36s
 ````
 
 
-Logs of one of the pods (`springback`):
+**Logs of one of the pods (`springback`):**
 
 ````shell
 [root@pt-instance-6:~/springblog]$ kubectl logs springback-754bf5764b-gfn7s
@@ -625,7 +625,7 @@ Picked up JAVA_TOOL_OPTIONS: -javaagent:/app/javaagent/dd-java-agent.jar  -Ddd.e
 The output above shows that the service has started and that the Datadog java tracing library has started to instrument the service. 
 
 
-State of the k8s services (`LoadBalancer` and `ClusterIP`)
+**State of the k8s services (`LoadBalancer` and `ClusterIP`)**
 
 ````shell
 [root@pt-instance-6:~/springblog]$ kubectl get svc
