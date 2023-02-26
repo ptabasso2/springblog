@@ -353,7 +353,7 @@ Besides we can also visualize the topology representation of this call
 
 ### Building the images ###
 
-For the sake of effectiveness, you will find the required images preloaded into the following registry https://hub.docker.com/repositories/pejese therefore you may skip the rest of this section and go to the if you only need to run the application [following](#norebuild).
+For the sake of effectiveness, you will find the required images preloaded into the following registry https://hub.docker.com/repositories/pejese therefore you may skip the rest of this section and go to the if you only need to run the application [following](#norebuild). 
 
 But if you ever need to change/adapt the services, dockerfiles and rebuild and push the images yourself, you may consider the following steps:
 
@@ -515,7 +515,11 @@ Removing network app
 
 ### Run the application without <a name="norebuild"></a> rebuilding the docker images ###
 
-This step assumes that we are using the preloaded images: `pejese/springfront:v2` and `pejese/springback:v2`. The provided `docker-compose.yml` file is already configured to point to those images. Therefore you would only need to run the following command:
+This step assumes that we are using the preloaded images: `pejese/springfront:v2` and `pejese/springback:v2`. 
+
+**Note**: These images are compliant for both `linux/amd64` and `linux/arm64` when pulling them from the registry the `docker run` or `docker-compose` commands will automatically pull the image corresponding to the environment architecture where they are executed.
+
+The provided `docker-compose.yml` file is already configured to point to those images. Therefore you would only need to run the following command:
 
 ````shell
 [root@pt-instance-6:~/springblog]$ docker-compose up -d
