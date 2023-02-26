@@ -348,12 +348,12 @@ Besides we can also visualize the topology representation of this call
 </p>
 
 
-## Building the docker <a name="docker"></a> images and run the application through docker (Optional).
+## Building the docker <a name="docker"></a> images and run the application through docker.
 
 
-### (Optional) Building the images ###
+### Building the images ###
 
-For the sake of effectiveness, you will find the required images preloaded into the following registry https://hub.docker.com/repositories/pejese therefore you may skip the rest of this section and go to the [following](#norebuild).
+For the sake of effectiveness, you will find the required images preloaded into the following registry https://hub.docker.com/repositories/pejese therefore you may skip the rest of this section and go to the if you only need to run the application [following](#norebuild).
 
 But if you ever need to change/adapt the services, dockerfiles and rebuild and push the images yourself, you may consider the following steps:
 
