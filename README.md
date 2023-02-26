@@ -15,8 +15,8 @@ The sections of this tutorial are structured as follows
 * Clone the repository
 * Directory structure of the project
 * Overview of the application
-* Building the docker images and run the application through [docker](#docker) (Optional).
 * Building the application and running it [locally](#local).
+* Building the docker images and run the application through [docker](#docker) (Optional).
 * Testing the application and generating load
 * Building the application and running it on a [kubernetes](#k8s) cluster
 * Conclusion
@@ -124,175 +124,6 @@ The example below is the structure after having clone the project.
 The main components of this project can be described as follows:
 + Two distinct microservices (`springfront` and `springback`) communicating with each other through Rest. The backend service in turn does a bit of processing and issues two external http calls  </br>
 + The various docker files needed to build the images and the `docker-compose` configuration file to spin up the three containers (`dd-agent-dogfood-jmx`, `springfront`, `springback`).
-
-
-## Building the docker <a name="docker"></a> images and run the application through docker (Optional).
-
-
-This step is not mandatory. If you wish to have these services running locally you may skip this section and jump to the next [one](#local).
-
-
-### Building the images ###
-
-For the sake of effectiveness, you will find the required images preloaded into the following registry https://hub.docker.com/repositories/pejese </br>
-But if you ever need to change/adapt the Dockerfiles and rebuild and push the images yourself, you may consider the following steps:
-
-* First change the `image` key in the `docker-compose.yml` file to specify your repository/registry details. The example uses `pejese/springfront:v2` and `pejese/springback:v2` 
-
-
-* Do make sure to set your API Key before running the following command:
-
-````shell
-[root@pt-instance-6:~/springblog]$ export DD_API_KEY=<Your api key>
-````
-
-* Then run the following:
-
-````shell
-[root@pt-instance-6:~/springblog]$ docker-compose up -d
-Creating network "app" with driver "bridge"
-Building springfront
-Sending build context to Docker daemon    149MB
-Step 1/9 : FROM adoptopenjdk/openjdk11:ubuntu-nightly-slim
- ---> 86b175442692
-Step 2/9 : ENV PS1A="[\[\e[1m\]\[\e[38;5;46m\]\u\[\e[0m\]@\h:\[\e[1m\]\[\e[38;5;21m\]\w\[\e[0m\]]$ "
- ---> Using cache
- ---> 369ef1b8c1ec
-Step 3/9 : ENV TZ="Europe/Paris"
- ---> Using cache
- ---> cd3ab6490891
-Step 4/9 : RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
- ---> Using cache
- ---> 3886a1abc21a
-Step 5/9 : RUN apt update  && apt -y install net-tools iputils-ping curl vim procps netcat wget gnupg2 apt-transport-https sudo lsof unzip git  && echo "alias ll='ls -lrt'" >> /root/.bashrc && echo 'PS1=$PS1A' >> ~/.bashrc && echo 'HISTFILESIZE=20000' >> ~/.bashrc && echo 'HISTSIZE=10000' >> ~/.bashrc
- ---> Using cache
- ---> d9802caad076
-Step 6/9 : WORKDIR /app
- ---> Using cache
- ---> 5dbb822ee27b
-Step 7/9 : COPY springfront/build/libs/spring-front.jar spring-front.jar
- ---> 479fdcd7749d
-Step 8/9 : EXPOSE 8080
- ---> Running in 4592997fe4d9
-Removing intermediate container 4592997fe4d9
- ---> fbd8ff70fce0
-Step 9/9 : CMD java -jar spring-front.jar
- ---> Running in 8c76cb7fcb3c
-Removing intermediate container 8c76cb7fcb3c
- ---> ebd58be12dac
-Successfully built ebd58be12dac
-Successfully tagged pejese/springfront:v2
-WARNING: Image for service springfront was built because it did not already exist. To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
-Building springback
-Sending build context to Docker daemon    149MB
-Step 1/9 : FROM adoptopenjdk/openjdk11:ubuntu-nightly-slim
- ---> 86b175442692
-Step 2/9 : ENV PS1A="[\[\e[1m\]\[\e[38;5;46m\]\u\[\e[0m\]@\h:\[\e[1m\]\[\e[38;5;21m\]\w\[\e[0m\]]$ "
- ---> Using cache
- ---> 369ef1b8c1ec
-Step 3/9 : ENV TZ="Europe/Paris"
- ---> Using cache
- ---> cd3ab6490891
-Step 4/9 : RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
- ---> Using cache
- ---> 3886a1abc21a
-Step 5/9 : RUN apt update  && apt -y install net-tools iputils-ping curl vim procps netcat wget gnupg2 apt-transport-https sudo lsof unzip git  && echo "alias ll='ls -lrt'" >> /root/.bashrc && echo 'PS1=$PS1A' >> ~/.bashrc && echo 'HISTFILESIZE=20000' >> ~/.bashrc && echo 'HISTSIZE=10000' >> ~/.bashrc
- ---> Using cache
- ---> d9802caad076
-Step 6/9 : WORKDIR /app
- ---> Using cache
- ---> 5dbb822ee27b
-Step 7/9 : COPY springback/build/libs/spring-back.jar spring-back.jar
- ---> 51b33bfd1377
-Step 8/9 : EXPOSE 8088
- ---> Running in fd7e34ab787f
-Removing intermediate container fd7e34ab787f
- ---> 991e54ed1c8d
-Step 9/9 : CMD java -jar spring-back.jar --server.port=8088
- ---> Running in 680972680c6a
-Removing intermediate container 680972680c6a
- ---> 3ce50627e909
-Successfully built 3ce50627e909
-Successfully tagged pejese/springback:v2
-WARNING: Image for service springback was built because it did not already exist. To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
-Creating dd-agent-dogfood-jmx ... done
-Creating springfront          ... done
-Creating springback           ... done
-````
-
-At this point the two images `springfront`, `springback` are built in the local repository (`pejese`) and the corresponding containers are up and running. You may want now to push those newly created images to your own remote image registry (ex: dockerhub or any other registry of your choice) by running `docker push`.
-
-
-
-Make sure you are authenticated to your registry through the `docker login` command.
-
-````shell
-[root@pt-instance-6:~/springblog]$ docker login -u=<your user> -p=xxxxxxxxxxx
-WARNING! Using --password via the CLI is insecure. Use --password-stdin.
-WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
-Configure a credential helper to remove this warning. See
-https://docs.docker.com/engine/reference/commandline/login/#credentials-store
-
-Login Succeeded
-````
-
-And then
-
-````shell
-[root@pt-instance-6:~/springblog]$ docker push <your user>/springfront:v2
-````
-
-Another way of building the images is shown below and relies on docker commands instead of the docker-compose ones:
-
-````shell
-[root@pt-instance-6:~/springblog]$ docker build -f Dockerfiles/Dockerfile.springfront -t <your user>/springfront:v2 .
-...
-[root@pt-instance-6:~/springblog]$ docker login -u=<your user> -p=xxxxxxxxxxx
-...
-[root@pt-instance-6:~/springblog]$ docker push <your user>/springfront:v2
-...
-[root@pt-instance-6:~/springblog]$ docker run -it -d --name springfront -h springfront <your user>/springfront:v2
-````
-</br>
-
-Let's check the status of our containers:
-
-````shell
-[root@pt-instance-6:~/springblog]$ docker-compose ps
-        Name                      Command                  State                                                  Ports                                            
--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-dd-agent-dogfood-jmx   /bin/entrypoint.sh               Up (healthy)   0.0.0.0:8125->8125/tcp,:::8125->8125/tcp, 8125/udp, 0.0.0.0:8126->8126/tcp,:::8126->8126/tcp
-springback             /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8088->8088/tcp,:::8088->8088/tcp                                                    
-springfront            /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8080->8080/tcp,:::8080->8080/tcp 
-````
-
-
-
-And now testing them to see if the application is functional.
-
-````shell
-[root@pt-instance-6:~/springblog]$ curl localhost:8080/upstream
-Quote{type='success', value=Value{id=9, quote='Alea jacta est'}}
-
-````
-
-Now as all the components are up and running, and every pieces work well together
-
-
-
-When you are done with those services, you can tear them down by running this command
-
-````shell
-[root@pt-instance-6:~/springblog]$ docker-compose down
-Stopping dd-agent-dogfood-jmx ... done
-Stopping springfront          ... done
-Stopping springback           ... done
-Removing dd-agent-dogfood-jmx ... done
-Removing springfront          ... done
-Removing springback           ... done
-Removing network app
-
-````
 
 
 ## Building <a name="local"></a> the application and running it locally.
@@ -517,14 +348,183 @@ Besides we can also visualize the topology representation of this call
 </p>
 
 
+## Building the docker <a name="docker"></a> images and run the application through docker (Optional).
+
+
+This step is not mandatory. If you wish to have these services running locally you may skip this section and jump to the next [one](#local).
+
+
+### Building the images ###
+
+For the sake of effectiveness, you will find the required images preloaded into the following registry https://hub.docker.com/repositories/pejese </br>
+But if you ever need to change/adapt the Dockerfiles and rebuild and push the images yourself, you may consider the following steps:
+
+* First change the `image` key in the `docker-compose.yml` file to specify your repository/registry details. The example uses `pejese/springfront:v2` and `pejese/springback:v2` 
+
+
+* Do make sure to set your API Key before running the following command:
+
+````shell
+[root@pt-instance-6:~/springblog]$ export DD_API_KEY=<Your api key>
+````
+
+* Then run the following:
+
+````shell
+[root@pt-instance-6:~/springblog]$ docker-compose up -d
+Creating network "app" with driver "bridge"
+Building springfront
+Sending build context to Docker daemon    149MB
+Step 1/9 : FROM adoptopenjdk/openjdk11:ubuntu-nightly-slim
+ ---> 86b175442692
+Step 2/9 : ENV PS1A="[\[\e[1m\]\[\e[38;5;46m\]\u\[\e[0m\]@\h:\[\e[1m\]\[\e[38;5;21m\]\w\[\e[0m\]]$ "
+ ---> Using cache
+ ---> 369ef1b8c1ec
+Step 3/9 : ENV TZ="Europe/Paris"
+ ---> Using cache
+ ---> cd3ab6490891
+Step 4/9 : RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+ ---> Using cache
+ ---> 3886a1abc21a
+Step 5/9 : RUN apt update  && apt -y install net-tools iputils-ping curl vim procps netcat wget gnupg2 apt-transport-https sudo lsof unzip git  && echo "alias ll='ls -lrt'" >> /root/.bashrc && echo 'PS1=$PS1A' >> ~/.bashrc && echo 'HISTFILESIZE=20000' >> ~/.bashrc && echo 'HISTSIZE=10000' >> ~/.bashrc
+ ---> Using cache
+ ---> d9802caad076
+Step 6/9 : WORKDIR /app
+ ---> Using cache
+ ---> 5dbb822ee27b
+Step 7/9 : COPY springfront/build/libs/spring-front.jar spring-front.jar
+ ---> 479fdcd7749d
+Step 8/9 : EXPOSE 8080
+ ---> Running in 4592997fe4d9
+Removing intermediate container 4592997fe4d9
+ ---> fbd8ff70fce0
+Step 9/9 : CMD java -jar spring-front.jar
+ ---> Running in 8c76cb7fcb3c
+Removing intermediate container 8c76cb7fcb3c
+ ---> ebd58be12dac
+Successfully built ebd58be12dac
+Successfully tagged pejese/springfront:v2
+WARNING: Image for service springfront was built because it did not already exist. To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
+Building springback
+Sending build context to Docker daemon    149MB
+Step 1/9 : FROM adoptopenjdk/openjdk11:ubuntu-nightly-slim
+ ---> 86b175442692
+Step 2/9 : ENV PS1A="[\[\e[1m\]\[\e[38;5;46m\]\u\[\e[0m\]@\h:\[\e[1m\]\[\e[38;5;21m\]\w\[\e[0m\]]$ "
+ ---> Using cache
+ ---> 369ef1b8c1ec
+Step 3/9 : ENV TZ="Europe/Paris"
+ ---> Using cache
+ ---> cd3ab6490891
+Step 4/9 : RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+ ---> Using cache
+ ---> 3886a1abc21a
+Step 5/9 : RUN apt update  && apt -y install net-tools iputils-ping curl vim procps netcat wget gnupg2 apt-transport-https sudo lsof unzip git  && echo "alias ll='ls -lrt'" >> /root/.bashrc && echo 'PS1=$PS1A' >> ~/.bashrc && echo 'HISTFILESIZE=20000' >> ~/.bashrc && echo 'HISTSIZE=10000' >> ~/.bashrc
+ ---> Using cache
+ ---> d9802caad076
+Step 6/9 : WORKDIR /app
+ ---> Using cache
+ ---> 5dbb822ee27b
+Step 7/9 : COPY springback/build/libs/spring-back.jar spring-back.jar
+ ---> 51b33bfd1377
+Step 8/9 : EXPOSE 8088
+ ---> Running in fd7e34ab787f
+Removing intermediate container fd7e34ab787f
+ ---> 991e54ed1c8d
+Step 9/9 : CMD java -jar spring-back.jar --server.port=8088
+ ---> Running in 680972680c6a
+Removing intermediate container 680972680c6a
+ ---> 3ce50627e909
+Successfully built 3ce50627e909
+Successfully tagged pejese/springback:v2
+WARNING: Image for service springback was built because it did not already exist. To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
+Creating dd-agent-dogfood-jmx ... done
+Creating springfront          ... done
+Creating springback           ... done
+````
+
+At this point the two images `springfront`, `springback` are built in the local repository (`pejese`) and the corresponding containers are up and running. You may want now to push those newly created images to your own remote image registry (ex: dockerhub or any other registry of your choice) by running `docker push`.
+
+
+
+Make sure you are authenticated to your registry through the `docker login` command.
+
+````shell
+[root@pt-instance-6:~/springblog]$ docker login -u=<your user> -p=xxxxxxxxxxx
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+````
+
+And then
+
+````shell
+[root@pt-instance-6:~/springblog]$ docker push <your user>/springfront:v2
+````
+
+Another way of building the images is shown below and relies on docker commands instead of the docker-compose ones:
+
+````shell
+[root@pt-instance-6:~/springblog]$ docker build -f Dockerfiles/Dockerfile.springfront -t <your user>/springfront:v2 .
+...
+[root@pt-instance-6:~/springblog]$ docker login -u=<your user> -p=xxxxxxxxxxx
+...
+[root@pt-instance-6:~/springblog]$ docker push <your user>/springfront:v2
+...
+[root@pt-instance-6:~/springblog]$ docker run -it -d --name springfront -h springfront <your user>/springfront:v2
+````
+</br>
+
+Let's check the status of our containers:
+
+````shell
+[root@pt-instance-6:~/springblog]$ docker-compose ps
+        Name                      Command                  State                                                  Ports                                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+dd-agent-dogfood-jmx   /bin/entrypoint.sh               Up (healthy)   0.0.0.0:8125->8125/tcp,:::8125->8125/tcp, 8125/udp, 0.0.0.0:8126->8126/tcp,:::8126->8126/tcp
+springback             /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8088->8088/tcp,:::8088->8088/tcp                                                    
+springfront            /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8080->8080/tcp,:::8080->8080/tcp 
+````
+
+
+
+And now testing them to see if the application is functional.
+
+````shell
+[root@pt-instance-6:~/springblog]$ curl localhost:8080/upstream
+Quote{type='success', value=Value{id=9, quote='Alea jacta est'}}
+
+````
+
+Now as all the components are up and running, and every pieces work well together
+
+
+
+When you are done with those services, you can tear them down by running this command
+
+````shell
+[root@pt-instance-6:~/springblog]$ docker-compose down
+Stopping dd-agent-dogfood-jmx ... done
+Stopping springfront          ... done
+Stopping springback           ... done
+Removing dd-agent-dogfood-jmx ... done
+Removing springfront          ... done
+Removing springback           ... done
+Removing network app
+
+````
+
+
 ## Building <a name="k8s"></a> the application and running it on a kubernetes cluster
 
 
 ### Building the cluster ###
 
-Let's first build a cluster. In this tutorial we are going to create a 3 node cluster on a google cloud (GKE). You may of course consider any other cloud provider to do so
+Let's first build a cluster. In this tutorial we are going to create a 3 nodes cluster on a google cloud (GKE). You may of course consider any other cloud provider to do so
 
-The first steps consists of creating the cluste using the command line utility `gcloud` and pass the necessary information pertaining to the type, region, sizing, disk, network...required to spin up our cluster. We are going to set a tag for this cluster `pej-cluster-1-nw-tag` that will be used during the firewall configuration to match the rule and the services tied to this cluster.
+The first steps consists of creating the cluster using the command line utility `gcloud` and pass the necessary information pertaining to the type, region, sizing, disk, network etc...required to spin up our cluster. We are going to set a tag for this cluster `pej-cluster-1-nw-tag` that will be used during the firewall configuration to match the rule and the services tied to this cluster.
 
 
 Our cluster name is `pej-cluster-1`
