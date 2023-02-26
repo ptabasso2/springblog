@@ -441,7 +441,7 @@ Creating springfront          ... done
 Creating springback           ... done
 ````
 
-At this point the two images `springfront`, `springback` are built in the local repository (`pejese`) and the corresponding containers are up and running. You may want now to push those newly created images to your own remote image registry (ex: dockerhub or any other registry of your choice) by running `docker push`.
+At this point the two images `springfront`, `springback` are built in the local repository (`pejese` in my case) and the corresponding containers are up and running. You may want now to push those newly created images to your own remote image registry (ex: dockerhub or any other registry of your choice) by running `docker push`.
 
 
 Make sure you are authenticated to your registry through the `docker login` command.
