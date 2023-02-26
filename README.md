@@ -128,10 +128,10 @@ The main components of this project can be described as follows:
 
 ## Building <a name="local"></a> the application and running it locally.
 
-
 These steps assume that you have a JDK installed and configured for your environment. This tutorial has been tested with `OpenJDK 11.0.12`.
 And you will also need to have gradle installed, the version used in this example is `7.5.1` 
 
+If you wish to simply run and test the application, you may skip this section and consider the dockerized version of the [application](#docker). The necessary images are provided and available in a `dockerhub` registry. 
 
 ### Starting the Datadog Agent first ###
 
@@ -351,17 +351,16 @@ Besides we can also visualize the topology representation of this call
 ## Building the docker <a name="docker"></a> images and run the application through docker (Optional).
 
 
-This step is not mandatory. If you wish to have these services running locally you may skip this section and jump to the next [one](#local).
+### (Optional) Building the images ###
 
+For the sake of effectiveness, you will find the required images preloaded into the following registry https://hub.docker.com/repositories/pejese therefore you may skip the rest of this section and go to the [following](#norebuild).
 
-### Building the images ###
+But if you ever need to change/adapt the services, dockerfiles and rebuild and push the images yourself, you may consider the following steps:
 
-For the sake of effectiveness, you will find the required images preloaded into the following registry https://hub.docker.com/repositories/pejese </br>
-But if you ever need to change/adapt the Dockerfiles and rebuild and push the images yourself, you may consider the following steps:
+* Build the application components (`springfront`,`springback`) as described in the previous [section](#local). 
 
-* First change the `image` key in the `docker-compose.yml` file to specify your repository/registry details. The example uses `pejese/springfront:v2` and `pejese/springback:v2` 
-
-
+* Change the `image` key in the `docker-compose.yml` file to specify your repository/registry details where you intend to push your custom images. 
+ 
 * Do make sure to set your API Key before running the following command:
 
 ````shell
@@ -445,7 +444,6 @@ Creating springback           ... done
 At this point the two images `springfront`, `springback` are built in the local repository (`pejese`) and the corresponding containers are up and running. You may want now to push those newly created images to your own remote image registry (ex: dockerhub or any other registry of your choice) by running `docker push`.
 
 
-
 Make sure you are authenticated to your registry through the `docker login` command.
 
 ````shell
@@ -489,7 +487,6 @@ springfront            /bin/sh -c java -jar sprin ...   Up             0.0.0.0:8
 ````
 
 
-
 And now testing them to see if the application is functional.
 
 ````shell
@@ -499,7 +496,6 @@ Quote{type='success', value=Value{id=9, quote='Alea jacta est'}}
 ````
 
 Now as all the components are up and running, and every pieces work well together
-
 
 
 When you are done with those services, you can tear them down by running this command
@@ -514,6 +510,18 @@ Removing springfront          ... done
 Removing springback           ... done
 Removing network app
 
+````
+
+
+### Run the application without <a name="norebuild"></a> rebuilding the docker images ###
+
+This step assumes that we are using the preloaded images: `pejese/springfront:v2` and `pejese/springback:v2`. The provided `docker-compose.yml` file is already configured to point to those images. Therefore you would only need to run the following command:
+
+````shell
+[root@pt-instance-6:~/springblog]$ docker-compose up -d
+Creating dd-agent-dogfood-jmx ... done
+Creating springfront          ... done
+Creating springback           ... done
 ````
 
 
