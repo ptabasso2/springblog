@@ -32,7 +32,7 @@ services:
       context: .
       dockerfile: Dockerfiles/Dockerfile.springfront
     container_name: springfront
-    image: 'pejese/springfront:v0'
+    image: 'pejese/springfront:v2'
     environment:
             - JAVA_TOOL_OPTIONS=-javaagent:/root/dd-java-agent.jar -Ddd.agent.host=dd-agent-dogfood-jmx -Ddd.service=springfront -Ddd.env=dev -Ddd.version=12 -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256 -Ddd.trace.http.client.split-by-domain=true -Ddd.tags=env:dev
             - URL=http://springback:8088
@@ -50,7 +50,7 @@ services:
       context: .
       dockerfile: Dockerfiles/Dockerfile.springback
     container_name: springback
-    image: 'pejese/springback:v0'
+    image: 'pejese/springback:v2'
     environment:
             - JAVA_TOOL_OPTIONS=-javaagent:/root/dd-java-agent.jar -Ddd.agent.host=dd-agent-dogfood-jmx -Ddd.service=springback -Ddd.env=dev -Ddd.version=12 -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256 -Ddd.trace.http.client.split-by-domain=true -Ddd.tags=env:dev
     hostname: springback
@@ -67,3 +67,4 @@ networks:
     external: false
     driver: bridge
     name: app
+
