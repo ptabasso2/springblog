@@ -13,11 +13,11 @@ The sections of this tutorial are structured as follows
 * Goal
 * Pre-requisites
 * Clone the repository
-* Directory structure of the project
-* Overview of the application
+* Directory structure of the [project](#project)
+* Overview of the [application](#app)
 * Building the application and running it [locally](#local).
 * Building the docker images and run the application through [docker](#docker) (Optional).
-* Testing the application and generating load
+* Testing the application and generating [load](#load)
 * Building the application and running it on a [kubernetes](#k8s) cluster
 * Conclusion
 
@@ -56,7 +56,7 @@ The purpose of this lab is to help familiarizing and practising the various step
 </pre>
 
 
-## Directory structure of the project
+## Directory structure of the <a name="project"></a>project
 
 
 The example below is the structure after having clone the project.
@@ -118,7 +118,7 @@ The example below is the structure after having clone the project.
 
 ```
 
-## Overview of the application
+## Overview of the <a name="app"></a>application
 
 
 The main components of this project can be described as follows:
@@ -330,7 +330,7 @@ You can see that before the spring banner gets displayed, some entries tied to t
 ````
 
 
-## Testing the application and generating load
+## Testing the application and generating <a name="load"></a>load
 
 
 Now by running a few curl commands on `/upstream`, and after a few seconds, we can check that our services are being instrumented and that the details are reflected in this trace flamegraph. 
