@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springfront
+  labels:
+    tags.datadoghq.com/env: "dev"
+    tags.datadoghq.com/service: "springfront"
+    tags.datadoghq.com/version: "12"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: springfront
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        name: springfront
+        tags.datadoghq.com/env: "dev"
+        tags.datadoghq.com/service: "springfront"
+        tags.datadoghq.com/version: "12"
+      annotations:
+        admission.datadoghq.com/java-lib.version: "latest"
+        #ad.datadoghq.com/springfront.logs: '[{"source": "java", "service": "springfront", "log_processing_rules": [{"type": "multi_line", "name": "log_start_with_date", "pattern" : "\\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])"}]}]'
+    spec:
+      containers:
+      - image: pejese/springfront:v2
+        command: ["/bin/sh"]
+        args: ["-c", "java -jar spring-front.jar"]
+        imagePullPolicy: Always
+        name: springfront
+        env:
+          - name: URL
+            value: http://springback:8088
+          - name: DD_TAGS
+            value: "env:dev"
+        ports:
+          - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springback
+  labels:
+    tags.datadoghq.com/env: "dev"
+    tags.datadoghq.com/service: "springback"
+    tags.datadoghq.com/version: "12"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: springback
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        name: springback
+        tags.datadoghq.com/env: "dev"
+        tags.datadoghq.com/service: "springback"
+        tags.datadoghq.com/version: "12"
+      annotations:
+        admission.datadoghq.com/java-lib.version: "latest"
+        #ad.datadoghq.com/springback.logs: '[{"source": "java", "service": "springback", "log_processing_rules": [{"type": "multi_line", "name": "log_start_with_date", "pattern" : "\\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])"}]}]'
+    spec:
+      containers:
+      - image: pejese/springback:v2
+        command: ["/bin/sh"]
+        args: ["-c", "java -jar spring-back.jar --server.port=8088"]
+        imagePullPolicy: Always
+        name: springback
+        env:
+          - name: DD_TAGS
+            value: "env:dev"
+          - name: DD_HTTP_CLIENT_HOST_SPLIT_BY_DOMAIN
+            value: "true"
+        ports:
+          - containerPort: 8088
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springfront
+spec:
+  type: LoadBalancer
+  ports:
+  - name: springfront-port 
+    port: 8080 
+    protocol: TCP
+    targetPort: 8080 
+  selector:
+    name: springfront
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springback
+spec:
+  ports:
+  - name: springback-port 
+    port: 8088 
+    protocol: TCP
+    targetPort: 8088 
+  selector:
+    name: springback
