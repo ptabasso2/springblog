@@ -19,6 +19,8 @@ The sections of this tutorial are structured as follows
 * Building the docker images and run the application through [docker](#docker) (Optional).
 * Testing the application and generating [load](#load)
 * Building the application and running it on a [kubernetes](#k8s) cluster
+  * Instrumenting app in k8s manually ([manual](#manual) configuration)
+  * Instrumenting app in k8s through lib [injection](#injection) 
 * Conclusion
 
 In each section, we'll describe the required steps to take in order to reach the goal.
@@ -574,21 +576,234 @@ pej-cluster-1-fw  pej-network  INGRESS    1000      tcp:22,tcp:80,tcp:8080,tcp:8
 ````
 
 
-### Deploying the Datadog Agent ###
+### Deploying the Datadog Agent and instrumenting the application using manual <a name="manual"></a>configuration###
+
+This approach will rely on having the trace agent enabled and listening on either TCP port `8126` or using a socket file (`Unix domain socket`).
+Traces can be submitted by the application to either of the two set ups. In this scanrio we will be using TCP.
+The corresponding configuration file is provided and is named `values-with-lib-conf.yaml` and is located in the `springblog/k8s/datadog/` directory.
+
+If you start configuring from scratch, you would simply need to configure the `apm` section of the `values.yaml` file where the `portEnabled`
+needs to be set to `true`. The `enabled` used to be the one that was used but is now deprecated. 
 
 
-Now that the cluster is up and running and the firewall rule configured, the Datadog Agent deployed through the helm chart, we are ready to deploy our pods and k8s services that will be used to access the application endpoint.
+`values-with-lib-conf.yaml`:
+````yaml
+apm:
+    socketEnabled: false
+    portEnabled: true
+    enabled: false
+    port: 8126
+    useSocketVolume: false
+    socketPath: /var/run/datadog/apm.socket
+    hostSocketPath: /var/run/datadog/
+````
 
-The deployment manifest (`deployment.yaml`) is provided and can be used as is. It contains the details to create two pods (one for `springfront` and a second for `springback`) and two services (one for accessing `springfront` from the internet and that is of LoadBalancer type and second that will allow `springfront` to communicate with `springback` directly inside the cluster)
+When ready you can run the agent installation process. In our case we will do so by using helm.
+
+````shell
+[root@pt-instance-6:~/springblog]$ helm install ddagent -f k8s/datadog/values-with-lib-conf.yaml  --set datadog.apiKey=<your API key> datadog/datadog --set targetSystem=linux
+NAME: ddagent
+LAST DEPLOYED: Mon Feb 27 09:58:51 2023
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Datadog agents are spinning up on each node in your cluster. After a few
+minutes, you should see your agents starting in your event stream:
+    https://app.datadoghq.com/event/explorer
+
+###################################################################################
+####   WARNING: Cluster-Agent should be deployed in high availability mode     ####
+###################################################################################
+
+The Cluster-Agent should be in high availability mode because the following features
+are enabled:
+* Admission Controller
+
+To run in high availability mode, our recommandation is to update the chart
+configuration with:
+* set `clusterAgent.replicas` value to `2` replicas .
+* set `clusterAgent.createPodDisruptionBudget` to `true`.
+````
+
+
+After a couple of minutes, the various components tied to the datadog agent will be deployed (datadog cluster agent and datadog agent on each node of the cluster)
+
+````shell
+[root@pt-instance-6:~/springblog]$ kubectl get pods
+NAME                                             READY   STATUS    RESTARTS   AGE
+ddagent-datadog-2p5pk                            4/4     Running   0          60s
+ddagent-datadog-cluster-agent-58b6784789-kfgw2   1/1     Running   0          59s
+ddagent-datadog-pvcxt                            4/4     Running   0          60s
+ddagent-datadog-x7zgj                            4/4     Running   0          60s
+ddagent-kube-state-metrics-6df45df688-b5gfn      1/1     Running   0          59s
+````
+
+
+Now it's time to deploy the application that comprises our application pods and kubernetes services that will allow the inbound and internal communications. The file to consider for this set up is named `depl-with-lib-conf.yaml`
+
+It can be used as is. It contains the details to create two pods (one for `springfront` and a second for `springback`) and two services (one for accessing `springfront` from the internet and that is of `LoadBalancer` type and second `ClusterIP` that will allow `springfront` to communicate with `springback` directly inside the cluster)
+
+
+Here are some caracteristics tied to the container section of this manifest.
+
+1. Using an initcontainer that would pull the java agent from the registry and place it on a mounted shared volume
+2. Having the container configured to use the volume so that it can access the java agent. 
+3. Having the container configured with various env variables (env, service, version and the java agent configuration details through the `JAVA_TOOL_OPTIONS` env variable) 
+
+
+````yaml
+    spec:
+      initContainers:
+      - name: javaagent
+        image: pejdd/testinit:v0
+        command:
+        - wget
+        - "-O"
+        - "/work-dir/dd-java-agent.jar"
+        - https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.datadoghq&a=dd-java-agent&v=LATEST
+        volumeMounts:
+        - name: workdir
+          mountPath: /work-dir
+      containers:
+      - image: pejese/springfront:v2
+        command: ["/bin/sh"]
+        args: ["-c", "java -jar spring-front.jar"]
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: workdir
+          mountPath: /app/javaagent
+        name: springfront
+        env:
+          - name: DD_AGENT_HOST
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+          - name: DD_ENV
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.labels['tags.datadoghq.com/env']
+          - name: DD_SERVICE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.labels['tags.datadoghq.com/service']
+          - name: DD_VERSION
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.labels['tags.datadoghq.com/version']
+          - name: JAVA_TOOL_OPTIONS
+            value: >
+              -javaagent:/app/javaagent/dd-java-agent.jar
+              -Ddd.env=dev -Ddd.service=springfront
+              -Ddd.version=12 -Ddd.tags=env:dev -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true
+              -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256
+              -Ddd.trace.http.client.split-by-domain=true
+          - name: URL
+            value: http://springback:8088
+        ports:
+          - containerPort: 8080
+      volumes:
+      - name: workdir
+        emptyDir: {}
+````
+
 
 
 ````shell
-[root@pt-instance-6:~/springblog]$ kubectl apply -f k8s/deployment.yaml 
+[root@pt-instance-6:~/springblog]$ kubectl apply -f k8s/depl-with-lib-conf.yaml.yaml 
 deployment.apps/springfront created
 deployment.apps/springback created
 service/springfront created
 service/springback created
 ````
+
+
+### Deploying the Datadog Agent and instrumenting the application using lib injection <a name="injection"></a>through the admission controller###
+
+This time we will enable the trace agent so that it receives trace through a socket file (`Unix domain socket` - UDS).
+The corresponding configuration file is provided and is named `values-with-lib-inj.yaml` and is located in the `springblog/k8s/datadog/` directory.
+
+If you start configuring it from scratch, you will not need to change anything in the `apm` section of the `values.yaml` as UDS is the default set up.
+
+You will only need to specify the `configMode` and set it to `socket`
+
+````yaml
+  admissionController:
+    enabled: true
+    mutateUnlabelled: true
+    configMode: "socket" # "hostip", "socket" or "service"
+    failurePolicy: Ignore
+````
+
+Once done, you can use the helm install command to deploy the Datadog agent on all the nodes of your cluster.
+
+````shell
+[root@pt-instance-6:~/springblog]$ helm install ddagent -f k8s/datadog/values-with-lib-inj.yaml  --set datadog.apiKey=<your API key> datadog/datadog --set targetSystem=linux
+NAME: ddagent
+LAST DEPLOYED: Mon Feb 27 09:58:51 2023
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Datadog agents are spinning up on each node in your cluster. After a few
+minutes, you should see your agents starting in your event stream:
+    https://app.datadoghq.com/event/explorer
+
+###################################################################################
+####   WARNING: Cluster-Agent should be deployed in high availability mode     ####
+###################################################################################
+
+The Cluster-Agent should be in high availability mode because the following features
+are enabled:
+* Admission Controller
+
+To run in high availability mode, our recommandation is to update the chart
+configuration with:
+* set `clusterAgent.replicas` value to `2` replicas .
+* set `clusterAgent.createPodDisruptionBudget` to `true`.
+````
+
+After a minute or so, the cluster agents and agents should be ready. We may move on and deploy our application.
+
+That consists of pods and kubernetes services that will allow the inbound and internal communications. The file to consider for this set up is named `depl-with-lib-inj.yaml`
+
+It can be used as is. It contains the details to create two pods (one for `springfront` and a second for `springback`) and two services (one for accessing `springfront` from the internet and that is of `LoadBalancer` type and second `ClusterIP` that will allow `springfront` to communicate with `springback` directly inside the cluster)
+
+
+This manifest version is a lot simpler and more condensed compared to the manual configuration example seen previously. 
+
+And that for the following reasons: 
+1. The initcontainers are no longer needed, nor are the shared volumes
+2. An annotation that instructs the admission controller to select pods for library injection
+3. The environment variables section is simplified as the unified service tags are no longer required.  
+
+
+````yaml
+ template:
+    metadata:
+      labels:
+        name: springfront
+        tags.datadoghq.com/env: "dev"
+        tags.datadoghq.com/service: "springfront"
+        tags.datadoghq.com/version: "12"
+      annotations:
+        admission.datadoghq.com/java-lib.version: "latest"
+    spec:
+      containers:
+      - image: pejese/springfront:v2
+        command: ["/bin/sh"]
+        args: ["-c", "java -jar spring-front.jar"]
+        imagePullPolicy: Always
+        name: springfront
+        env:
+          - name: URL
+            value: http://springback:8088
+        ports:
+          - containerPort: 8080
+````
+
 
 
 ### Component state ###
@@ -600,8 +815,17 @@ Our pods and services have been created successfully and we can now check their 
 ````shell
 [root@pt-instance-6:~/springblog]$ kubectl get pods
 NAME                           READY   STATUS    RESTARTS   AGE
+...
 springback-754bf5764b-gfn7s    1/1     Running   0          36s
 springfront-75ffb9cc79-drcht   1/1     Running   0          36s
+````
+
+**Service details**
+````shell
+[root@pt-instance-6:~/springblog]$ kubectl get svc
+...
+springback                                           ClusterIP      10.20.15.38    <none>           8088/TCP         78s
+springfront                                          LoadBalancer   10.20.12.23    34.121.121.123   8080:31857/TCP   78s
 ````
 
 
@@ -634,27 +858,18 @@ Picked up JAVA_TOOL_OPTIONS: -javaagent:/app/javaagent/dd-java-agent.jar  -Ddd.e
 2023-02-20 00:31:54 [main] INFO  c.d.pej.back.SpringBackApplication -   - test
 ````
 
-The output above shows that the service has started and that the Datadog java tracing library has started to instrument the service. 
+The output above shows that the service has started and that the Datadog java tracing library has started to instrument it. 
 
-
-**State of the k8s services (`LoadBalancer` and `ClusterIP`)**
-
-````shell
-[root@pt-instance-6:~/springblog]$ kubectl get svc
-NAME          TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)          AGE
-kubernetes    ClusterIP      10.20.0.1      <none>          443/TCP          11m
-springback    ClusterIP      10.20.7.220    <none>          8088/TCP         81s
-springfront   LoadBalancer   10.20.11.109   34.133.204.98   8080:32753/TCP   81s
-````
 
 ### Testing the application ###
 
 We can now curl the enpoint by using the external IP of the cluster (34.133.204.98) on port 8080 which is the listening port for `springfront`. 
 
 ````shell
-[root@pt-instance-6:~/springblog]$ curl 34.133.204.98:8080/upstream
+[root@pt-instance-6:~/springblog]$ curl 34.121.121.123:8080/upstream
 Quote{type='success', values=Values{id=5, quote='Alea jacta est'}}
 ````
+
 
 
 ### Deleting the cluster ###

@@ -37,8 +37,6 @@ spec:
         env:
           - name: URL
             value: http://springback:8088
-          - name: DD_TAGS
-            value: "env:dev"
         ports:
           - containerPort: 8080
 ---
@@ -79,10 +77,6 @@ spec:
         imagePullPolicy: Always
         name: springback
         env:
-          - name: DD_TAGS
-            value: "env:dev"
-          - name: DD_HTTP_CLIENT_HOST_SPLIT_BY_DOMAIN
-            value: "true"
         ports:
           - containerPort: 8088
 ---
