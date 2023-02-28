@@ -515,7 +515,7 @@ Removing network app
 ````
 
 
-### Run the application without <a name="norebuild"></a> rebuilding the docker images ###
+### Run the application without <a name="norebuild"></a> rebuilding the docker images
 
 This step assumes that we are using the preloaded images: `pejese/springfront:v2` and `pejese/springback:v2`. 
 
@@ -562,7 +562,7 @@ please run:
 ````
 
 
-### Configuring the firewall rule ###
+### Configuring the firewall rule
 
 Now that the cluster is created let's configure the firewall rules by running the following gcloud command. This rule will allow the source range of IP addresses to use specific protocols and ports to access the applications and services running on the cluster. 
 
@@ -576,7 +576,7 @@ pej-cluster-1-fw  pej-network  INGRESS    1000      tcp:22,tcp:80,tcp:8080,tcp:8
 ````
 
 
-### Deploying the Datadog Agent and instrumenting the application using manual <a name="manual"></a>configuration###
+### Deploying the Datadog Agent and instrumenting the application using manual <a name="manual"></a>configuration
 
 This approach will rely on having the trace agent enabled and listening on either TCP port `8126` or using a socket file (`Unix domain socket`).
 Traces can be submitted by the application to either of the two set ups. In this scanrio we will be using TCP.
@@ -719,7 +719,7 @@ service/springback created
 ````
 
 
-### Deploying the Datadog Agent and instrumenting the application using lib injection <a name="injection"></a>through the admission controller###
+### Deploying the Datadog Agent and instrumenting the application using lib injection <a name="injection"></a>through the admission controller
 
 This time we will enable the trace agent so that it receives trace through a socket file (`Unix domain socket` - UDS).
 The corresponding configuration file is provided and is named `values-with-lib-inj.yaml` and is located in the `springblog/k8s/datadog/` directory.
@@ -806,7 +806,7 @@ And that for the following reasons:
 
 
 
-### Component state ###
+### Component state
 
 Our pods and services have been created successfully and we can now check their respective state. We can also check the log content from one of the pod. 
 
@@ -861,7 +861,7 @@ Picked up JAVA_TOOL_OPTIONS: -javaagent:/app/javaagent/dd-java-agent.jar  -Ddd.e
 The output above shows that the service has started and that the Datadog java tracing library has started to instrument it. 
 
 
-### Testing the application ###
+### Testing the application
 
 We can now curl the enpoint by using the external IP of the cluster (34.133.204.98) on port 8080 which is the listening port for `springfront`. 
 
@@ -872,7 +872,7 @@ Quote{type='success', values=Values{id=5, quote='Alea jacta est'}}
 
 
 
-### Deleting the cluster ###
+### Deleting the cluster
 
 ````shell
 [root@pt-instance-6:~/springblog]$ gcloud container clusters delete pej-cluster-1 --zone "us-central1-c"
@@ -885,7 +885,7 @@ Deleting cluster pej-cluster-1...done.
 Deleted [https://container.googleapis.com/v1/projects/datadog-project/zones/us-central1-c/clusters/pej-cluster-1].
 ````
 
-### Deleting the firewall rule ###
+### Deleting the firewall rule
 
 ````shell
 [root@pt-instance-6:~/springblog]$ gcloud compute firewall-rules delete pej-cluster-1-fw
