@@ -70,7 +70,6 @@ spec:
               -Ddd.env=dev -Ddd.service=springfront 
               -Ddd.version=12 -Ddd.tags=env:dev -Ddd.trace.sample.rate=1 -Ddd.logs.injection=true 
               -Ddd.profiling.enabled=true -XX:FlightRecorderOptions=stackdepth=256 
-              -Ddd.trace.http.client.split-by-domain=true
           - name: URL
             value: http://springback:8088
         ports:
