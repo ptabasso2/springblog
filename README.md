@@ -21,7 +21,7 @@ The sections of this tutorial are structured as follows
 * Building the application and running it on a [kubernetes](#k8s) cluster
   * Instrumenting app in k8s manually ([manual](#manual) configuration)
   * Instrumenting app in k8s through lib [injection](#injection) 
-* Conclusion
+* End
 
 In each section, we'll describe the required steps to take in order to reach the goal.
 
@@ -578,12 +578,12 @@ pej-cluster-1-fw  pej-network  INGRESS    1000      tcp:22,tcp:80,tcp:8080,tcp:8
 
 ### Deploying the Datadog Agent and instrumenting the application using manual <a name="manual"></a>configuration
 
-This approach will rely on having the trace agent enabled and listening on either TCP port `8126` or using a socket file (`Unix domain socket`).
-Traces can be submitted by the application to either of the two set ups. In this scanrio we will be using TCP.
+This approach will rely on having the trace agent enabled and listening on either the `8126` TCP port or using a socket file (`Unix domain socket`).
+Traces can be submitted by the application to either of the two set ups. In this scenario we will be using TCP.
 The corresponding configuration file is provided and is named `values-with-lib-conf.yaml` and is located in the `springblog/k8s/datadog/` directory.
 
-If you start configuring from scratch, you would simply need to configure the `apm` section of the `values.yaml` file where the `portEnabled`
-needs to be set to `true`. The `enabled` used to be the one that was used but is now deprecated. 
+If you start configuring from scratch, you would simply need to configure the `apm` section of the `values.yaml` file where `portEnabled`
+needs to be set to `true`. `enabled` used to be the way to configure APM, but it is now deprecated. 
 
 
 `values-with-lib-conf.yaml`:
