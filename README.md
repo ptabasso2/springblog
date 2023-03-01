@@ -2,7 +2,7 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/ptabasso2/springblog)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ptabasso2/springblog)
 
-# Rest application example
+# Instrumenting a spring boot application using Datadog
 
 
 ## Introduction
@@ -29,7 +29,7 @@ In each section, we'll describe the required steps to take in order to reach the
 ## Goal of this lab
 
 
-The purpose of this lab is to help familiarizing and practising the various steps required to set up a simple spring application using Rest.
+The purpose of this lab is to help familiarizing and practising the various steps required to set up a spring boot application using Rest and start instrumenting it with Datadog
 
 <p align="left">
   <img src="img/imgRest.png" width="850" />
@@ -46,6 +46,7 @@ The purpose of this lab is to help familiarizing and practising the various step
 + A Datadog account with a valid API key
 + Your favorite text editor or IDE (Ex Sublime Text, Atom, vscode...)
 + Docker and docker-compose.
++ Having `gcloud` installed or any cloud platform equivalent (for Azure, AWS, Alibaba)
 
 
 ## Clone the repository
