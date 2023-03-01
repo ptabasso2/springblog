@@ -19,7 +19,7 @@ The sections of this tutorial are structured as follows
 * Building the docker images and run the application through [docker](#docker) (Optional).
 * Testing the application and generating [load](#load)
 * Building the application and running it on a [kubernetes](#k8s) cluster
-  * Instrumenting app in k8s manually ([manual](#manual) configuration)
+  * Instrumenting app in k8s through [manual](#manual) configuration
   * Instrumenting app in k8s through lib [injection](#injection) 
 * End
 
