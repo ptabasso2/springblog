@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springfront
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: springfront
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        name: springfront
+    spec:
+      containers:
+      - image: pejese/springfront:v2
+        command: ["/bin/sh"]
+        args: ["-c", "java -jar spring-front.jar"]
+        imagePullPolicy: Always
+        name: springfront
+        env:
+          - name: URL
+            value: http://springback:8088
+        ports:
+          - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springback
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: springback
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        name: springback
+    spec:
+      containers:
+      - image: pejese/springback:v2
+        command: ["/bin/sh"]
+        args: ["-c", "java -jar spring-back.jar --server.port=8088"]
+        imagePullPolicy: Always
+        name: springback
+        env:
+        ports:
+          - containerPort: 8088
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springfront
+spec:
+  type: LoadBalancer
+  ports:
+  - name: springfront-port 
+    port: 8080 
+    protocol: TCP
+    targetPort: 8080 
+  selector:
+    name: springfront
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springback
+spec:
+  ports:
+  - name: springback-port 
+    port: 8088 
+    protocol: TCP
+    targetPort: 8088 
+  selector:
+    name: springback
